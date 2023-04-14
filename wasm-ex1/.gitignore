@@ -1,0 +1,6 @@
+ruby.wasm
+my-ruby-app.wasm
+ruby-3_2-wasm32-unknown-wasi-full.tar.gz
+src
+src/my_app.rb
+3_2-wasm32-unknown-wasi-full/
