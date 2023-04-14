@@ -139,7 +139,7 @@ excess. But if you follow [The Bytecode Alliance][], you should understand
 that portability to the web browser is just a part of Wasm, and performance
 wasn't the only goal. This is just the first example!
 
-[Keep reading][next example], or [return to the top](/)
+[Keep reading][next example], or [return to the top](https://github.com/kingdonb/stats-tracker-ghcr/)
 
 [github.com/ruby/ruby.wasm]: https://github.com/ruby/ruby.wasm#quick-example-how-to-package-your-ruby-application-as-a-wasi-application
 [The Bytecode Alliance]: https://bytecodealliance.org/#faq
