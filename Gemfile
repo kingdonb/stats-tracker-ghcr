@@ -3,3 +3,6 @@ source 'https://rubygems.org'
 
 gem 'gammo'
 # gem 'pry'
+
+gem 'chartkick'
+# gem 'kubernetes-operator'

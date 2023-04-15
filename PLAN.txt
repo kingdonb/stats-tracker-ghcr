@@ -1,0 +1,13 @@
+Plan:
+
+do the fermyon examples so I know how to install gems in a wasm
+make a kubernetes-operator that has a few things:
+
+* serves web interface
+* takes a fluxcd/pkg name as part of a spec in operator style
+* the interval says how often to perform a collection
+* the collection process runs the gammo wasm module
+
+* the user should also be able to fetch the latest number from in their browser
+* we need to account for rate limiting, if the rate limit is hit we should be able to discard that as an error
+* it should be possible for the user to show or discard errors in their browser
