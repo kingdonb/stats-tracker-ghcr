@@ -1,15 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    nokogiri (1.14.3-arm64-darwin)
-      racc (~> 1.4)
-    racc (1.6.2)
+    gammo (0.3.0)
 
 PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
-  nokogiri
+  gammo
 
 RUBY VERSION
    ruby 3.0.6p216
