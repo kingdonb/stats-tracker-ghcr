@@ -4,18 +4,13 @@
 // Compiled to Wasm by using the Makefile
 // (it runs cargo build!)
 
-use std::{env, fs};
-use lib_stat::count_from_html;
-
-
-// use count_from_html;
-//use stat::count_from_html;
+use std::{fs};
 // extern crate scraper;
 
 fn main() {
-    // Arguments
-    {
-        let mut arguments = env::args().collect::<Vec<String>>();
+    // Let's learn to use scraper (without any file at first)
+    // {
+    //     use scraper::{Html, Selector};
 
         // println!("Found program name: `{}`", arguments[0]);
 
@@ -39,20 +34,33 @@ fn main() {
         println!("{:?}", count);
     }
 
-    // Scraper
-    {
-        use scraper::{Html, Selector};
+    // We don't need any Environment variables
+    // // Environment variables
+    // {
+    //     let environment_variables = env::vars()
+    //         .map(|(arg, val)| format!("{}={}", arg, val))
+    //         .collect::<Vec<String>>();
 
-        let content = fs::read_dir("/html")
-        .unwrap()
-        .map(|e| e.map(|inner| format!("{:?}", inner)))
-        .collect::<Result<Vec<String>, _>>()
-        .unwrap();
+    //     println!(
+    //         "Found {} environment variables: {}",
+    //         environment_variables.len(),
+    //         environment_variables.join(", ")
+    //     );
+    // }
 
-        let html = content;
+    // We will borrow content from within a Directory, as in:
+    // // Directories.
+    // {
+    //     let root = fs::read_dir("/")
+    //         .unwrap()
+    //         .map(|e| e.map(|inner| format!("{:?}", inner)))
+    //         .collect::<Result<Vec<String>, _>>()
+    //         .unwrap();
 
-        let document = Html::parse_document(html);
-        let selector = Selector::parse("#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1").unwrap();
-        let _count = document.select(&selector).next().unwrap();
-    }
+    //     println!(
+    //         "Found {} preopened directories: {}",
+    //         root.len(),
+    //         root.join(", ")
+    //     );
+    // }
 }
