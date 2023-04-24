@@ -1,7 +1,6 @@
 require 'gammo'
 require 'open-uri'
 require 'wasmer'
-require 'pry'
 
 BIG_HONKIN_SELECTOR = "#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1".freeze
 
@@ -10,7 +9,7 @@ def wasmer_current_download_count(html)
   content_dir = 'cache'
   cache = File.expand_path content_dir, File.dirname(__FILE__)
   cache_file = File.join(cache, 'content')
-  IO.write(cache_file, html)
+  IO.write(cache_file, html.read)
 
   # Load our web assembly "stat" from the stat/ rust package
   file = File.expand_path "stat.wasm", File.dirname(__FILE__)
@@ -21,17 +20,9 @@ def wasmer_current_download_count(html)
   module_ = Wasmer::Module.new store, wasm_bytes
   wasi_version = Wasmer::Wasi::get_version module_, true
 
-  binding.pry
-
   # Setup the wasm module with some system parameters
   wasi_env =
-    Wasmer::Wasi::StateBuilder.new('wasi_test_program')
-      .argument('--path')
-      .argument('html')
-      .argument('--file')
-      .argument('content')
-      .environment('COLOR', 'true')
-      .environment('APP_SHOULD_LOG', 'false')
+    Wasmer::Wasi::StateBuilder.new('stats')
       .map_directory('html', cache)
       .finalize
   import_object = wasi_env.generate_import_object store, wasi_version

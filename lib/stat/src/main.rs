@@ -4,66 +4,94 @@
 // Compiled to Wasm by using the Makefile
 // (it runs cargo build!)
 
-use std::{env, fs};
+use std::{fs};
 // extern crate scraper;
 
 fn main() {
-    // Arguments
-    {
-        let mut arguments = env::args().collect::<Vec<String>>();
+    // Let's learn to use scraper (without any file at first)
+    // {
+    //     use scraper::{Html, Selector};
 
-        println!("Found program name: `{}`", arguments[0]);
+    //     let html = r#"
+    //         <!DOCTYPE html>
+    //         <meta charset="utf-8">
+    //         <title>Hello, world!</title>
+    //         <h1 class="foo">Hello, <i>world!</i></h1>
+    //     "#;
 
-        arguments = arguments[1..].to_vec();
-        println!(
-            "Found {} arguments: {}",
-            arguments.len(),
-            arguments.join(", ")
-        );
-    }
+    //     let document = Html::parse_document(&html);
+    //     let selector = Selector::parse("title").unwrap();
+    //     let title = document.select(&selector).next().unwrap();
 
-    // Environment variables
-    {
-        let environment_variables = env::vars()
-            .map(|(arg, val)| format!("{}={}", arg, val))
-            .collect::<Vec<String>>();
+    //     let text = title.text().collect::<Vec<_>>()[0];
+    //     println!("Found title: `{}`", text)
+    // }
 
-        println!(
-            "Found {} environment variables: {}",
-            environment_variables.len(),
-            environment_variables.join(", ")
-        );
-    }
+    // We don't need any Arguments right now
+    // // Arguments
+    // {
+    //     let mut arguments = env::args().collect::<Vec<String>>();
 
-    // Directories.
-    {
-        let root = fs::read_dir("/")
-            .unwrap()
-            .map(|e| e.map(|inner| format!("{:?}", inner)))
-            .collect::<Result<Vec<String>, _>>()
-            .unwrap();
+    //     println!("Found program name: `{}`", arguments[0]);
 
-        println!(
-            "Found {} preopened directories: {}",
-            root.len(),
-            root.join(", ")
-        );
-    }
+    //     arguments = arguments[1..].to_vec();
+    //     println!(
+    //         "Found {} arguments: {}",
+    //         arguments.len(),
+    //         arguments.join(", ")
+    //     );
+    // }
 
-    // Scraper
+    // We don't need any Environment variables
+    // // Environment variables
+    // {
+    //     let environment_variables = env::vars()
+    //         .map(|(arg, val)| format!("{}={}", arg, val))
+    //         .collect::<Vec<String>>();
+
+    //     println!(
+    //         "Found {} environment variables: {}",
+    //         environment_variables.len(),
+    //         environment_variables.join(", ")
+    //     );
+    // }
+
+    // We will borrow content from within a Directory, as in:
+    // // Directories.
+    // {
+    //     let root = fs::read_dir("/")
+    //         .unwrap()
+    //         .map(|e| e.map(|inner| format!("{:?}", inner)))
+    //         .collect::<Result<Vec<String>, _>>()
+    //         .unwrap();
+
+    //     println!(
+    //         "Found {} preopened directories: {}",
+    //         root.len(),
+    //         root.join(", ")
+    //     );
+    // }
+
+    // Scraper using a mapped directory
     {
         use scraper::{Html, Selector};
 
-        let content = fs::read_dir("/html")
-        .unwrap()
-        .map(|e| e.map(|inner| format!("{:?}", inner)))
-        .collect::<Result<Vec<String>, _>>()
-        .unwrap();
+        // let contents = fs::read_to_string("/Users/kingdonb/w/stats-tracker-ghcr/lib/cache/content")
+        //     .expect("Should have been able to read the file");
+        // println!("With text:\n{contents}")
 
-        let html = content;
+        let content = fs::read_to_string("/html/content")
+            .expect("No file was found at /html/content");
 
-        let document = Html::parse_document(html);
+        let document = Html::parse_document(&content);
         let selector = Selector::parse("#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1").unwrap();
-        let _count = document.select(&selector).next().unwrap();
+        for element in document.select(&selector) {
+            let t = element;
+            let h3 = Selector::parse("h3").unwrap();
+            for counter in t.select(&h3) {
+                let count = counter.value().attr("title").unwrap();
+                println!("Text: {:?}", count);
+            }
+        }
     }
 }
