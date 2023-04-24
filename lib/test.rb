@@ -1,7 +1,29 @@
 require 'gammo'
 require 'open-uri'
+require 'wasmer'
 
 BIG_HONKIN_SELECTOR = "#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1".freeze
+
+def wasmer_current_download_count(html)
+  file = File.expand_path "appendices/wasi.wasm", File.dirname(__FILE__)
+  wasm_bytes = IO.read(file, mode: "rb")
+  store = Wasmer::Store.new
+  module_ = Wasmer::Module.new store, wasm_bytes
+  wasi_version = Wasmer::Wasi::get_version module_, true
+  wasi_env =
+    Wasmer::Wasi::StateBuilder.new('wasi_test_program')
+      .argument('--test')
+      .environment('COLOR', 'true')
+      .environment('APP_SHOULD_LOG', 'false')
+      .map_directory('the_host_current_dir', '.')
+      .finalize
+  import_object = wasi_env.generate_import_object store, wasi_version
+
+  instance = Wasmer::Instance.new module_, import_object
+  instance.exports._start.()
+
+  return "42"
+end
 
 def gammo_current_download_count(html)
   g = Gammo.new(html.read)
