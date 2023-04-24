@@ -1,12 +1,14 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    chartkick (5.0.1)
     gammo (0.3.0)
 
 PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
+  chartkick
   gammo
 
 RUBY VERSION
