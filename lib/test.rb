@@ -13,27 +13,40 @@ def wasmer_current_download_count(html)
 
   # Load our web assembly "stat" from the stat/ rust package
   file = File.expand_path "stat.wasm", File.dirname(__FILE__)
-  wasm_bytes = IO.read(file, mode: "rb")
+  # wasm_bytes = IO.read(file, mode: "rb")
+  wasm_bytes = Wasmer::wat2wasm(
+    (<<~WAST)
+    (module
+      (type $sum_t (func (result i32)))
+      (func $sum_f (type $sum_t) (result i32)
+        i32.const 1
+        i32.const 2
+        i32.add)
+      (export "count_from_html" (func $sum_f)))
+    WAST
+  )
 
   # Wasmer setup stuff
   store = Wasmer::Store.new
   module_ = Wasmer::Module.new store, wasm_bytes
-  wasi_version = Wasmer::Wasi::get_version module_, true
+  # wasi_version = Wasmer::Wasi::get_version module_, true
 
   # Setup the wasm module with some system parameters
-  wasi_env =
-    Wasmer::Wasi::StateBuilder.new('stats')
-      .map_directory('html', cache)
-      .finalize
-  import_object = wasi_env.generate_import_object store, wasi_version
+  # wasi_env =
+  #   Wasmer::Wasi::StateBuilder.new('stats')
+  #     .argument('html/content')
+  #     .map_directory('html', cache)
+  #     .finalize
+  # import_object = wasi_env.generate_import_object store, wasi_version
 
   # Call the Wasm (it may use the system interface for IO)
-  instance = Wasmer::Instance.new module_, import_object
-  instance.exports._start.()
+  instance = Wasmer::Instance.new module_, nil
+  # Let's not call main...
+  # instance.exports._start.()
+  # results = instance.exports.count_from_html.()
+  results = instance.exports.count_from_html.()
 
-  # We haven't figured out how to capture that system IO,
-  # maybe we should have just called it as a function
-  return "42"
+  return results
 end
 
 def gammo_current_download_count(html)
