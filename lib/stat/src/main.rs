@@ -13,25 +13,6 @@ use lib_stat::count_from_html;
 // extern crate scraper;
 
 fn main() {
-    // Let's learn to use scraper (without any file at first)
-    // {
-    //     use scraper::{Html, Selector};
-
-    //     let html = r#"
-    //         <!DOCTYPE html>
-    //         <meta charset="utf-8">
-    //         <title>Hello, world!</title>
-    //         <h1 class="foo">Hello, <i>world!</i></h1>
-    //     "#;
-
-    //     let document = Html::parse_document(&html);
-    //     let selector = Selector::parse("title").unwrap();
-    //     let title = document.select(&selector).next().unwrap();
-
-    //     let text = title.text().collect::<Vec<_>>()[0];
-    //     println!("Found title: `{}`", text)
-    // }
-
     // Arguments
     {
         let mut arguments = env::args().collect::<Vec<String>>();
@@ -56,5 +37,22 @@ fn main() {
 
         let count = count_from_html(content);
         println!("{:?}", count);
+    }
+
+    // Scraper
+    {
+        use scraper::{Html, Selector};
+
+        let content = fs::read_dir("/html")
+        .unwrap()
+        .map(|e| e.map(|inner| format!("{:?}", inner)))
+        .collect::<Result<Vec<String>, _>>()
+        .unwrap();
+
+        let html = content;
+
+        let document = Html::parse_document(html);
+        let selector = Selector::parse("#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1").unwrap();
+        let _count = document.select(&selector).next().unwrap();
     }
 }
