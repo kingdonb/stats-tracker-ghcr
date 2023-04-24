@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    wasmer (1.0.0)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  wasmer
+
+BUNDLED WITH
+   2.4.10
