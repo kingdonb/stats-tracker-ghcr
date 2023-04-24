@@ -366,7 +366,7 @@ them, or vice versa. This is the real intended use of Wasm, as I perceive it.
 
 If we can substitute one compiled program for another, and every behavior we
 intended for the first compiled program is equally satisfied by the secondary
-program, then we've learned a new duck-typing, or jet-propulsion if you like.
+program, then we've learned a new duck-typing, or jet-propulsion if you like!
 
 Source: [opensource.com][]
 
