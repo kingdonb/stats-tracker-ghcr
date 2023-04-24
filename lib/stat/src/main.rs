@@ -1,13 +1,8 @@
 // Adapted from: 
 // https://github.com/wasmerio/wasmer-ruby
 // wasmer-ruby/examples/appendices/wasi.rs
-// Compiled to Wasm as follows:
-//
-// ```sh
-// $ rustc --target wasm32-wasi -O stat.rs -o stat.raw.wasm
-// $ wasm-strip stat.raw.wasm
-// $ wasm-opt -O4 -Oz --enable-bulk-memory stat.raw.wasm -o stat.wasm
-// ```
+// Compiled to Wasm by using the Makefile
+// (it runs cargo build!)
 
 use std::{env, fs};
 // extern crate scraper;
@@ -24,7 +19,7 @@ fn main() {
             <h1 class="foo">Hello, <i>world!</i></h1>
         "#;
 
-        let document = Html::parse_document(html);
+        let _document = Html::parse_document(html);
     }
     // Arguments
     {

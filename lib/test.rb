@@ -5,7 +5,7 @@ require 'wasmer'
 BIG_HONKIN_SELECTOR = "#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1".freeze
 
 def wasmer_current_download_count(html)
-  file = File.expand_path "appendices/wasi.wasm", File.dirname(__FILE__)
+  file = File.expand_path "stat.wasm", File.dirname(__FILE__)
   wasm_bytes = IO.read(file, mode: "rb")
   store = Wasmer::Store.new
   module_ = Wasmer::Module.new store, wasm_bytes
@@ -15,7 +15,7 @@ def wasmer_current_download_count(html)
       .argument('--test')
       .environment('COLOR', 'true')
       .environment('APP_SHOULD_LOG', 'false')
-      .map_directory('the_host_current_dir', '.')
+      .map_directory('html', './cache')
       .finalize
   import_object = wasi_env.generate_import_object store, wasi_version
 
@@ -45,7 +45,7 @@ end
 def get_current_stat_with_time(http_client)
   t = Time.now
   h = http_client.call('https://github.com/fluxcd/flagger/pkgs/container/flagger')
-  c = gammo_current_download_count(h)
+  c = wasmer_current_download_count(h)
 
   {time: t, count: c}
 end
