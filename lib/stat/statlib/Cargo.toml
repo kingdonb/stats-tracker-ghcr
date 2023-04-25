@@ -1,5 +1,5 @@
 [package]
-name = "lib-stat"
+name = "statlib"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,4 @@ scraper = "0.16.0"
 wasm-bindgen = "0.2.84"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["lib", "cdylib"]

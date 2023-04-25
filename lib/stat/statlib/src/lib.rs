@@ -6,7 +6,7 @@
 
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
-use std::{fs};
+
 // extern crate scraper;
 
 struct X {
