@@ -10,6 +10,29 @@ def assert &block
 end
 # /prelude
 
+# Borrowed from: https://github.com/wasmerio/wasmer-ruby/issues/68
+def capturing_output
+  old_stdout = $stdout.dup
+  old_stderr = $stderr.dup
+
+  Tempfile.create '' do |stdout|
+    $stdout.reopen stdout.path, 'w+'
+
+    Tempfile.create '' do |stderr|
+      $stderr.reopen stderr.path, 'w+'
+
+      yield
+
+      stdout.read
+    rescue RuntimeError
+      raise ScriptError.new stdout.read, stderr.read, $!.message
+    end
+  ensure
+    $stdout.reopen old_stdout
+    $stderr.reopen old_stderr
+  end
+end
+
 def wasmer_current_download_count(html)
   # Save the html to a file: cache/content
   content_dir = 'cache'
@@ -19,50 +42,26 @@ def wasmer_current_download_count(html)
 
   # Load our web assembly "stat" from the stat/ rust package
   file = File.expand_path "stat.wasm", File.dirname(__FILE__)
-  # wasm_bytes = IO.read(file, mode: "rb")
-  wasm_bytes = Wasmer::wat2wasm(
-  (<<~WAST)
-  (module
-    (type $hello_t (func (result i32)))
-    (func $hello (type $hello_t) (result i32)
-        i32.const 42)
-    (memory $memory 1)
-    (export "hello" (func $hello))
-    (export "mem" (memory $memory))
-    (data (i32.const 42) "Hello, World!"))
-  WAST
-)
-
+  wasm_bytes = IO.read(file, mode: "rb")
 
   # Wasmer setup stuff
   store = Wasmer::Store.new
   module_ = Wasmer::Module.new store, wasm_bytes
+  wasi_version = Wasmer::Wasi::get_version module_, true
 
-  # Setup the wasm module with some system parameters
-#   import_object = Wasmer::ImportObject.new
-#   sum_host_function = Wasmer::Function.new(
-#     store,
-#     method(:html),
-#   #                         x                  y                    result
-#   Wasmer::FunctionType.new([Wasmer::Type::I32, Wasmer::Type::I32], [Wasmer::Type::I32])
-# )
+  wasi_env =
+    Wasmer::Wasi::StateBuilder.new('stats')
+      .argument('html/content')
+      .map_directory('html', cache)
+      .finalize
+  import_object = wasi_env.generate_import_object store, wasi_version
 
   # Call the Wasm (it may use the system interface for IO)
-  instance = Wasmer::Instance.new module_, nil
-  pointer = instance.exports.hello.()
-  assert { pointer == 42 }
-
-  size_in_bytes = html.length
-
-  memory = instance.exports.mem
-  assert { memory.is_a?(Wasmer::Memory) }
-  # binding.pry
-  reader = memory.uint8_view pointer
-  # binding.pry
-  returned_string = reader.take(13).pack("C*").force_encoding('utf-8')
-  assert { returned_string == 'Hello, World!' }
-
+  instance = Wasmer::Instance.new module_, import_object
   # results = instance.exports.count_from_html.()
+  returned_string = capturing_output do
+    instance.exports._start.()
+  end
 
   return returned_string
 end

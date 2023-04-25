@@ -2,7 +2,7 @@ all: stat.wasm test
 
 test:
 	ruby test.rb
-stat.raw.wasm: stat/src/lib.rs
+stat.raw.wasm: stat/src/main.rs
 	cd stat && cargo build --release --target wasm32-wasi && \
 	cp -f target/wasm32-wasi/release/stat.wasm ../stat.raw.wasm
 	wasm-strip stat.raw.wasm
