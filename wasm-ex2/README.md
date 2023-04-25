@@ -496,12 +496,14 @@ Also: HTML parse is measured only as native C, Ruby, and Rust compiled to Wasi.
 
 That was too many words, our benchmarking test matrix looks like this:
 
+```
               Native C   Ruby   Rust   Wat2wasm
             +----------+------+------+----------+
 Hello World |          |  XX  |  XX  |    XX    |
             +----------|------|------|----------+
 HTML Parser |    XX    |  XX  |  XX  |          +
             +----------+------+------+----------+
+```
 
 We're expecting to see better performance from compiled languages in general,
 but we can't be sure that the speed boost of compilation offsets the penalty
