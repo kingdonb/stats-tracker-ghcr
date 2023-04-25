@@ -4,8 +4,8 @@
 // Compiled to Wasm by using the Makefile
 // (it runs cargo build!)
 
-extern crate wasm_bindgen;
-use wasm_bindgen::prelude::*;
+// extern crate wasm_bindgen;
+// use wasm_bindgen::prelude::*;
 
 // extern crate scraper;
 
@@ -13,12 +13,12 @@ struct X {
     i: i32,
 }
 
-#[wasm_bindgen]
-extern "C" {
-    fn html() -> String;
-}
+// #[wasm_bindgen]
+// extern "C" {
+//     fn html() -> String;
+// }
 
-#[wasm_bindgen]
+// #[wasm_bindgen]
 pub fn count_from_html(html: String) -> i32 {
     // Scraper using a mapped directory
     use scraper::{Html, Selector};

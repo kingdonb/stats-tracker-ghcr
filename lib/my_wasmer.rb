@@ -61,7 +61,7 @@ def wasmer_current_download_count(html)
   # results = instance.exports.count_from_html.()
   returned_string = capturing_output do
     instance.exports._start.()
-  end
+  end.chomp
 
   return returned_string
 end

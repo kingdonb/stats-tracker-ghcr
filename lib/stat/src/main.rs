@@ -36,14 +36,14 @@ fn main() {
     {
         let mut arguments = env::args().collect::<Vec<String>>();
 
-        println!("Found program name: `{}`", arguments[0]);
+        // println!("Found program name: `{}`", arguments[0]);
 
         arguments = arguments[1..].to_vec();
-        println!(
-            "Found {} arguments: {}",
-            arguments.len(),
-            arguments.join(", ")
-        );
+        // println!(
+        //     "Found {} arguments: {}",
+        //     arguments.len(),
+        //     arguments.join(", ")
+        // );
 
         let file_source = &arguments[0];
 
@@ -55,6 +55,6 @@ fn main() {
             .expect("No readable file was found there");
 
         let count = count_from_html(content);
-        println!("Text: {:?}", count);
+        println!("{:?}", count);
     }
 }
