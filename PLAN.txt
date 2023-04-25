@@ -11,3 +11,38 @@ make a kubernetes-operator that has a few things:
 * the user should also be able to fetch the latest number from in their browser
 * we need to account for rate limiting, if the rate limit is hit we should be able to discard that as an error
 * it should be possible for the user to show or discard errors in their browser
+
+---
+
+Fermyon Spin
+
+Talk to kingdon@weave.works about this. Or pull from his GitHub repo's explanation.
+
+(From Kingdon: "Spin's underlying technologies begin from a simple idea: most
+programming problems are either a bit more like CLI tools (WASI), more like web
+servers (Wagi), or a bit like packaged libraries (Wasm). Have a look at these
+repos to hear about Spin's fantastic voyage."
+
+* FluxCD Stats Tracker App in Wasm: https://github.com/kingdonb/stats-tracker-ghcr
+* Bartholomew Blog on Kubernetes: https://github.com/kingdonb/taking-bartholo
+* Fermyon's most aggressive examples repo, Spin + Kitchen Sink:
+  https://github.com/fermyon/spin-kitchensink#spin-example-components
+
+While I did find most everything I needed here, and I was able to adapt this
+for Kubernetes, I felt right on a bleeding edge the whole time. As a Rubyist
+and Kubernetes enthusiast both alike, I truly wonder who has already been down
+any of these roads, and how did they find them?)
+
+Also, despite what you may have heard, and while Fermyon Cloud is indeed a
+closed product... Fermyon's (Spin's) critical path is basically entirely built
+on open source, (see Hippo Factory):
+
+* https://developer.fermyon.com/
+* https://docs.hippofactory.dev/intro/install-hippo/
+* https://docs.hippofactory.dev/
+
+From: "Understanding Hippo's Design
+NOTE: As of current writing, the actual Hippo data model and flow are not quite
+where this document says they are. That’s because Hippo is ~a journey~ a work
+in progress, and we’re figuring things out as we go." – Statement from "Hippo
+Factory," may help to set expectations.
