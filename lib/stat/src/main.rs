@@ -5,8 +5,10 @@
 // (it runs cargo build!)
 
 use std::{env, fs};
+use statlib::count_from_html;
 
-extern crate lib_stat;
+
+// use count_from_html;
 //use stat::count_from_html;
 // extern crate scraper;
 
@@ -52,7 +54,7 @@ fn main() {
         let content = fs::read_to_string(file_source)
             .expect("No readable file was found there");
 
-        let count = lib_stat::count_from_html(content);
+        let count = count_from_html(content);
         println!("Text: {:?}", count);
     }
 }
