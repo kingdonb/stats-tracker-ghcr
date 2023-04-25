@@ -2,15 +2,6 @@ require 'gammo'
 require 'open-uri'
 require './my_wasmer'
 
-# prelude.rb
-class AssertionError < RuntimeError
-end
-
-def assert &block
-  raise AssertionError unless yield
-end
-# /prelude
-
 BIG_HONKIN_SELECTOR = "#repo-content-turbo-frame > div > div > div > div.d-flex.flex-column.flex-md-row.mt-n1.mt-2.gutter-condensed.gutter-lg.flex-column > div.col-12.col-md-3.flex-shrink-0 > div:nth-child(3) > div.container-lg.my-3.d-flex.clearfix > div.lh-condensed.d-flex.flex-column.flex-items-baseline.pr-1".freeze
 
 def html
