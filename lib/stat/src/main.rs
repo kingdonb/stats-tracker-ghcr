@@ -5,7 +5,7 @@
 // (it runs cargo build!)
 
 use std::{env, fs};
-use statlib::count_from_html;
+use lib_stat::count_from_html;
 
 
 // use count_from_html;
