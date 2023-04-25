@@ -8,4 +8,4 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-statlib = { path = "statlib" }
+lib-stat = { path = "lib-stat" }
