@@ -45,6 +45,12 @@ Value-add extras:
 * [ ] Review code re-use opportunities: did we find any of them?
 * [ ] Add good documentation about how to run this in perpetuity
 
+## Examples
+
+* [Example 1][] - Run Ruby 'Hello World' in WebAssembly with `ruby.wasm`
+* [Example 2][] - Run Wasmer in Ruby, run Wasm/Wasi in a Browser (finally!)
+* [Example 3][] - Parsing HTML and HTTP client from Web Assembly with Spin
+
 ## Known Limitations of Wasm
 
 There is one major leading known limitation of Wasm with respect to Ruby, and
@@ -190,3 +196,7 @@ this work off the ground without too much pain, I cloned the above repository.
 
 A bit more guided-tour than the above, but does not cover requiring Ruby gems.
 Loads of interesting threads can be found in the "Learn More" section below it.
+
+[Example 1]: wasm-ex1
+[Example 2]: wasm-ex2
+[Example 3]: wasm-ex3
