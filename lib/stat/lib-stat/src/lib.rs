@@ -19,11 +19,11 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn count_from_html() -> i32 {
+pub fn count_from_html(html: String) -> i32 {
     // Scraper using a mapped directory
     use scraper::{Html, Selector};
 
-    let content = html();
+    let content = &html;
 
     let mut x = X { i: 0 };
     let document = Html::parse_document(&content);
