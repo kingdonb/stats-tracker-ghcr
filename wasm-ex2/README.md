@@ -2,8 +2,8 @@
 
 The goal of this example is using Ruby code to execute a web assembly.
 
-But there are some things from Example 1 we should review first! Let's have a
-little diversion first, before diving in to our [second Wasm example][].
+But there are some things from Example 1 we should review! Let's have a little
+diversion first, before diving in to our [second Wasm example][].
 
 ## Run Ruby in Wasmer
 
