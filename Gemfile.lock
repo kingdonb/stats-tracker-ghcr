@@ -3,13 +3,16 @@ GEM
   specs:
     chartkick (5.0.1)
     gammo (0.3.0)
+    wasmer (1.0.0)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-22
 
 DEPENDENCIES
   chartkick
   gammo
+  wasmer
 
 RUBY VERSION
    ruby 3.0.6p216

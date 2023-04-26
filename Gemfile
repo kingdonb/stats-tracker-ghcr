@@ -6,3 +6,5 @@ gem 'gammo'
 
 gem 'chartkick'
 # gem 'kubernetes-operator'
+
+gem 'wasmer'
