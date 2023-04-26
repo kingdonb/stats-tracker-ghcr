@@ -187,7 +187,7 @@ Go Cubs! (Source: [There's an 85 Percent Chance...](https://fivethirtyeight.com/
 
 ### Other Works Cited
 
-* [fermyon/wagi-ruby](https://github.com/fermyon/wagi-ruby).
+* [fermyon/wagi-ruby](https://github.com/fermyon/wagi-ruby)
 
 To learn how pure Ruby Gem dependencies can be included in Wasm modules and get
 this work off the ground without too much pain, I cloned the above repository.
@@ -197,6 +197,6 @@ this work off the ground without too much pain, I cloned the above repository.
 A bit more guided-tour than the above, but does not cover requiring Ruby gems.
 Loads of interesting threads can be found in the "Learn More" section below it.
 
-[Example 1]: wasm-ex1
-[Example 2]: wasm-ex2
-[Example 3]: wasm-ex3
+[Example 1]: wasm-ex1#example-1
+[Example 2]: wasm-ex2#prelude-for-example-2
+[Example 3]: wasm-ex3#prelude-for-example-3
