@@ -23,6 +23,31 @@ HTML Parser |    XX    |  XX  |  XX  |          +
             +----------+------+------+----------+
 ```
 
+TODO: Be sure to include a QR code from [syrusakbary/qr2text][]
+
+(Here's one)
+
+
+    █▀▀▀▀▀█  ▀▄▀ ██▄██▀▀█▀ ▀  █▀▀▀▀▀█
+    █ ███ █ █▀▄█▀▀▄▄▄▀▀▄▄▀█ ▄ █ ███ █
+    █ ▀▀▀ █ ██▀▄▀ ▄█▄█▀ ▄▀▀▀▄ █ ▀▀▀ █
+    ▀▀▀▀▀▀▀ █▄█ █ ▀▄▀ █ ▀▄▀ █ ▀▀▀▀▀▀▀
+    █▄▀███▀▄  █  ▀▀▀█▀▄▄▄▄ █  ██▀██ ▄
+      ▀▀▀ ▀▀  ██▄ ▄▀█ ▀▄▀▄  █▄█ █▄█▄▄
+    █▀▀█ █▀▄▄▄▀ ▄ ▄▄▄ ▀▀▄▀ █▀▀▄▀▀█ ▄▄
+    ▄ █ ▄ ▀█▄ ▀▀▀   ▄▀ █▄▄▀▄ ██▄▀██▀
+    ▀▄▀ ▀▀▀███ ▀▄ ▀  █▄█▄ ▀▄▀▀▄█▀█▄▄█
+    █▀▀▀ █▀▄█ ▀█▀▄▀▀ █▄▄█ ▀ ▀█ ██▄█▀
+    ▄ ▀  ▀▀▀     █▄█▀ ▄▀▀█▀▄▀█▄▀▀█▄▀▄
+    █ ▄█▀ ▀▀ ▄█▄▀▀██▀ ▄ ▀▄▄  █▄▄ ▄█▀▄
+    ▀ ▀ ▀▀▀▀█▄▄ ███▀▄▀▄▄ ▄▀██▀▀▀█▀▄██
+    █▀▀▀▀▀█ ▄ ▀▀ █▄▀▄ ▀ ██▄██ ▀ █▄██
+    █ ███ █ █ ▀ █ ▄▄▄▄▀▀▄▀▄▄██▀▀█▀▄ ▄
+    █ ▀▀▀ █ ▀ ▀█ ██ ▄▀ █▄▄█   ▀▀▄▄▄
+    ▀▀▀▀▀▀▀ ▀  ▀ ▀   ▀ ▀  ▀ ▀ ▀▀   ▀
+
+If you enjoyed the talk so far, scan this QR code and find the GitHub page! Or
+feel free to take picture and use to come back later. I hope we are having fun.
 
 ## Example 3
 
@@ -113,5 +138,6 @@ World or HTML parsing is faster in a compiled language than in pure Ruby.
 [Example 2]: ../wasm-ex2
 [Stats Tracker]: ../
 [Additional Comparison]: ../wasm-ex2#additional-comparison
+[syrusakbary/qr2text]: https://wapm.io/syrusakbary/qr2text
 
 [opensource.com]: https://opensource.com/article/21/3/hello-world-webassembly
