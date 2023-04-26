@@ -44,6 +44,12 @@ Then run:
 $ make
 ```
 
-Now you should be able to run `make` and see the test passing.
+If all went OK, you should be able to run `make test` and see the test output!
+
+```
+$ make test
+ruby test.rb
+{:time=>2023-04-26 14:24:02.90684469 -0400, :count=>"355103300"}
+```
 
 [RVM.io]: https://get.rvm.io
