@@ -50,6 +50,7 @@ Value-add extras:
 * [Example 1][] - Run Ruby 'Hello World' in WebAssembly with `ruby.wasm`
 * [Example 2][] - Run Wasmer in Ruby, run Wasm/Wasi in a Browser (finally!)
 * [Example 3][] - Parsing HTML and HTTP client from Web Assembly with Spin
+* [Project Library][] - Rust library in a functioning product, hosted with Ruby!
 
 ## Known Limitations of Wasm
 
@@ -200,3 +201,4 @@ Loads of interesting threads can be found in the "Learn More" section below it.
 [Example 1]: wasm-ex1#example-1
 [Example 2]: wasm-ex2#prelude-for-example-2
 [Example 3]: wasm-ex3#prelude-for-example-3
+[Project Library]: lib#readme
