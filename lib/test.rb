@@ -32,7 +32,7 @@ def get_current_stat_with_time(project, repo, image)
 
   t = Time.now
   h = http_client_wrapped(client, project, repo, image)
-  c = wasmer_current_download_count(h)
+  c = wasmer_current_download_count(h, repo, image)
 
   {time: t, count: c}
 end
