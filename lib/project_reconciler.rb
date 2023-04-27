@@ -43,14 +43,14 @@ module Project
         #     projectName: "fluxcd"
         #     packageName: "#{image}"
         # YAML
-        k8s.create_leaf(Kubeclient::Resource.new(
-          {metadata:
-           {name: name, namespace: 'default'},
-           spec: {
-             projectName: 'fluxcd', packageName: image
-           }
+        k8s.create_leaf(Kubeclient::Resource.new({
+          metadata: {
+            name: name, namespace: 'default'
+          },
+          spec: {
+            projectName: 'fluxcd', packageName: image
           }
-        ))
+        }))
 
         # binding.pry
       end
