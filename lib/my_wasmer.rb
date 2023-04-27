@@ -1,5 +1,5 @@
 require 'wasmer'
-require 'pry'
+# require 'pry'
 
 # prelude.rb
 class AssertionError < RuntimeError
