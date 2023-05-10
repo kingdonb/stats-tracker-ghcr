@@ -45,6 +45,13 @@ Value-add extras:
 * [ ] Review code re-use opportunities: did we find any of them?
 * [ ] Add good documentation about how to run this in perpetuity
 
+## Examples
+
+* [Example 1][] - Run Ruby 'Hello World' in WebAssembly with `ruby.wasm`
+* [Example 2][] - Run Wasmer in Ruby, run Wasm/Wasi in a Browser (finally!)
+* [Example 3][] - Parsing HTML and HTTP client from Web Assembly with Spin
+* [Project Library][] - Rust library in a functioning product, hosted with Ruby!
+
 ## Known Limitations of Wasm
 
 There is one major leading known limitation of Wasm with respect to Ruby, and
@@ -181,7 +188,7 @@ Go Cubs! (Source: [There's an 85 Percent Chance...](https://fivethirtyeight.com/
 
 ### Other Works Cited
 
-* [fermyon/wagi-ruby](https://github.com/fermyon/wagi-ruby).
+* [fermyon/wagi-ruby](https://github.com/fermyon/wagi-ruby)
 
 To learn how pure Ruby Gem dependencies can be included in Wasm modules and get
 this work off the ground without too much pain, I cloned the above repository.
@@ -190,3 +197,8 @@ this work off the ground without too much pain, I cloned the above repository.
 
 A bit more guided-tour than the above, but does not cover requiring Ruby gems.
 Loads of interesting threads can be found in the "Learn More" section below it.
+
+[Example 1]: wasm-ex1#example-1
+[Example 2]: wasm-ex2#prelude-for-example-2
+[Example 3]: wasm-ex3#prelude-for-example-3
+[Project Library]: lib#readme

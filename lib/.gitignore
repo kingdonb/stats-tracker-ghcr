@@ -1,3 +1,4 @@
 stat.raw.wasm
 cache/**
 !cache/.keep
+wabt/

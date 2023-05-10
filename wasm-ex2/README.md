@@ -2,8 +2,8 @@
 
 The goal of this example is using Ruby code to execute a web assembly.
 
-But there are some things from Example 1 we should review first! Let's have a
-little diversion first, before diving in to our [second Wasm example][].
+But there are some things from Example 1 we should review! Let's have a little
+diversion first, before diving in to our [second Wasm example][].
 
 ## Run Ruby in Wasmer
 
@@ -366,7 +366,7 @@ them, or vice versa. This is the real intended use of Wasm, as I perceive it.
 
 If we can substitute one compiled program for another, and every behavior we
 intended for the first compiled program is equally satisfied by the secondary
-program, then we've learned a new duck-typing, or jet-propulsion if you like.
+program, then we've learned a new duck-typing, or jet-propulsion if you like!
 
 Source: [opensource.com][]
 
@@ -496,12 +496,14 @@ Also: HTML parse is measured only as native C, Ruby, and Rust compiled to Wasi.
 
 That was too many words, our benchmarking test matrix looks like this:
 
+```
               Native C   Ruby   Rust   Wat2wasm
             +----------+------+------+----------+
 Hello World |          |  XX  |  XX  |    XX    |
             +----------|------|------|----------+
 HTML Parser |    XX    |  XX  |  XX  |          +
             +----------+------+------+----------+
+```
 
 We're expecting to see better performance from compiled languages in general,
 but we can't be sure that the speed boost of compilation offsets the penalty
