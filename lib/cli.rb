@@ -9,12 +9,12 @@ class MyCLI < Thor
   desc "controller ORG", "Create a Project for the GitHub ORG and start reconciling it"
   def controller(name: "fluxcd")
     # puts "calling Fiber.schedule for do_update loop"
-    #Fiber.set_scheduler(FiberScheduler.new)
+    Fiber.set_scheduler(FiberScheduler.new)
 
     projer = Project::Operator.new
     leafer = Leaf::Operator.new
 
-    #Fiber.schedule do
+    Fiber.schedule do
       # upsert_project!(name)
       ## Don't forget to insert the sample "Project" fluxcd
 
@@ -29,12 +29,13 @@ class MyCLI < Thor
         # sleep 400 # Nice round number, 400s
         # puts "project reconciler running again after #{Time.now - t0} seconds"
       #end
-    #end
-    #Fiber.schedule do
+    end
+    Fiber.schedule do
       #loop do
         # reconcile_leaves
 
-        #leafer.run
+        leafer.run
+        # Using fibers may impact our ability to use the debugger... let's see
 
         # puts "ran the leaf reconciler, sleeping now"
         # t0 = Time.now
@@ -42,6 +43,6 @@ class MyCLI < Thor
         # sleep 21600 # 60*60*24/4
         # puts "leaf reconciler running again after #{Time.now - t0} seconds"
       #end
-    #end
+    end
   end
 end

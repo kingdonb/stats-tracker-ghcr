@@ -38,7 +38,7 @@ def wasmer_current_download_count(html, repo, image)
   content_dir = 'cache'
   target_dir = File.join(content_dir, repo, image)
   cache_dir = File.expand_path target_dir, File.dirname(__FILE__)
-  binding.pry
+  # binding.pry
   FileUtils.mkdir_p target_dir
 
   cache_file = File.join(target_dir, 'content')

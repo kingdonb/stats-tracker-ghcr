@@ -29,9 +29,12 @@ module Project
 
       k8s = @opi.instance_variable_get("@k8sclient")
       @ts.each do |t|
-        name = t[0]
+        name = t[0].gsub("/", "-")
+        origName = t[0]
+        # binding.pry if name == "charts-flagger"
         path = t[1]
         image = path.split("/")[6]
+        # binding.pry if name == "charts-flagger"
 
         # d = <<~YAML
         #   ---
@@ -43,16 +46,26 @@ module Project
         #     projectName: "fluxcd"
         #     packageName: "#{image}"
         # YAML
+
+        begin
+          l = k8s.get_leaf(name, 'default')
+          if l.respond_to?(:kind)
+            next # leaf is already present on the cluster, don't re-create it
+          end
+        rescue Kubeclient::ResourceNotFoundError => e
+          # this is the signal to proceed, create the leaf
+        end
+
         k8s.create_leaf(Kubeclient::Resource.new({
           metadata: {
             name: name, namespace: 'default'
           },
           spec: {
-            projectName: 'fluxcd', packageName: image
+            projectName: 'fluxcd', packageName: image, repoName: origName
           }
         }))
 
-        # binding.pry
+        binding.pry if name == "charts/flagger"
       end
 
       {:status => {:message => "upsert works fine"}}
