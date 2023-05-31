@@ -15,34 +15,10 @@ class MyCLI < Thor
     leafer = Leaf::Operator.new
 
     Fiber.schedule do
-      # upsert_project!(name)
-      ## Don't forget to insert the sample "Project" fluxcd
-
-      #loop do
-        # reconcile_projects
-
         projer.run
-
-        # puts "ran the project reconciler, sleeping now"
-        # t0 = Time.now
-
-        # sleep 400 # Nice round number, 400s
-        # puts "project reconciler running again after #{Time.now - t0} seconds"
-      #end
     end
     Fiber.schedule do
-      #loop do
-        # reconcile_leaves
-
         leafer.run
-        # Using fibers may impact our ability to use the debugger... let's see
-
-        # puts "ran the leaf reconciler, sleeping now"
-        # t0 = Time.now
-
-        # sleep 21600 # 60*60*24/4
-        # puts "leaf reconciler running again after #{Time.now - t0} seconds"
-      #end
     end
   end
 end
