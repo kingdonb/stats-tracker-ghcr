@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  package: one
+  count: 1
+  measured_at: 2023-05-31 17:40:30
+
+two:
+  package: two
+  count: 1
+  measured_at: 2023-05-31 17:40:30

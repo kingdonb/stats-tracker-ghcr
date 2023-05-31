@@ -1,0 +1,2 @@
+class GitHubOrg < ApplicationRecord
+end

@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Github orgs</h1>
+
+<div id="github_orgs">
+  <% @github_orgs.each do |github_org| %>
+    <%= render github_org %>
+    <p>
+      <%= link_to "Show this github org", github_org %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New github org", new_github_org_path %>
