@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Packages</h1>
+
+<div id="packages">
+  <% @packages.each do |package| %>
+    <%= render package %>
+    <p>
+      <%= link_to "Show this package", package %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New package", new_package_path %>
