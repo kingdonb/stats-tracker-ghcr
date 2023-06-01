@@ -31,7 +31,7 @@ module Leaf
     end
 
     def upsert(obj)
-      begin
+      # begin
       name = obj["metadata"]["name"]
       @logger.info("create new leaf {packageName: #{obj["spec"]["packageName"]}}")
 
@@ -45,22 +45,31 @@ module Leaf
 
       @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
 
-      fluxcd = ::GithubOrg.find_by(name: 'fluxcd')
+      fluxcd = nil
+
+      loop do
+        fluxcd = ::GithubOrg.find_by(name: 'fluxcd')
+        break if fluxcd.present?
+        sleep 2
+      end
 
       repo_obj = ::Repository.find_or_create_by(name: repo, github_org: fluxcd)
       package_obj = ::Package.find_or_create_by(name: image, repository: repo_obj)
 
       package_obj.download_count = r[:count]
       package_obj.save!
+
+      t = DateTime.now.in_time_zone
+
       Fiber.schedule do
-        repo_obj.run(k8s)
+        repo_obj.run(k8s:, last_update: t)
       end
       Fiber.schedule do
-        package_obj.run(k8s)
+        package_obj.run(k8s:, last_update: t)
       end
-      rescue ArgumentError => e
-        binding.pry
-      end
+      # rescue ArgumentError => e
+      #   binding.pry
+      # end
 
       # Here is where we should call our wasm module, and the fetcher
       {:status => {

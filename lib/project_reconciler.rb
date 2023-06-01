@@ -97,6 +97,21 @@ module Project
         }))
       end
 
+      last_update = DateTime.now.in_time_zone
+      register_health_check(k8s: k8s, count: count, last_update: last_update)
+      @eventHelper.add(obj,"registered health check for leaves from project/#{projectName}")
+
+      {:status => {
+        :count => count.to_s,
+        :lastUpdate => last_update
+      }}
+    end
+
+    def delete(obj)
+      @logger.info("delete project with the name #{obj["spec"]["projectName"]}")
+    end
+
+    def register_health_check(k8s:, count:, last_update:)
       # Store the number of packages from @ts for health checking later
       gho = ::GithubOrg.find_or_create_by(name: 'fluxcd')
       gho.package_count = count
@@ -104,18 +119,8 @@ module Project
 
       # Do the health checking (later)
       Fiber.schedule do
-        gho.run(k8s)
+        gho.run(k8s: k8s, last_update: last_update)
       end
-      @eventHelper.add(obj,"registered health check for leaves from project/#{projectName}")
-
-      {:status => {
-        :count => count.to_s,
-        :lastUpdate => DateTime.now.in_time_zone
-      }}
-    end
-
-    def delete(obj)
-      @logger.info("delete project with the name #{obj["spec"]["projectName"]}")
     end
 
     def create_new_leaves(obj)
