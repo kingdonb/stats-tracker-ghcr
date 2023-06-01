@@ -1,0 +1,7 @@
+---
+kind: Project
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "fluxcd"
+spec:
+  projectName: "fluxcd"

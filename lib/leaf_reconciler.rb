@@ -1,4 +1,5 @@
 require 'kubernetes-operator'
+require 'pry'
 
 module Leaf
   class Operator

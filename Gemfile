@@ -4,6 +4,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.1.4'
 # ruby "3.0.6"
 
+gem 'awesome_print'
+
 gem 'gammo'
 gem 'pry'
 

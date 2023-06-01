@@ -68,6 +68,7 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
+    awesome_print (1.9.2)
     bindex (0.8.1)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
@@ -266,6 +267,7 @@ PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
+  awesome_print
   bootsnap
   capybara
   debug

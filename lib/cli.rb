@@ -3,6 +3,13 @@ require 'fiber_scheduler'
 require 'thor'
 require './lib/project_reconciler'
 require './lib/leaf_reconciler'
+require './lib/sample'
+
+basedir = File.expand_path('../app/models', __FILE__)
+Dir["#{basedir}/*.rb"].each do |path|
+  name = "#{File.basename(path, '.rb')}"
+  autoload name.classify.to_sym, "#{basedir}/#{name}"
+end
 
 class MyCLI < Thor
 
@@ -15,10 +22,11 @@ class MyCLI < Thor
     leafer = Leaf::Operator.new
 
     Fiber.schedule do
-        projer.run
+      projer.run
     end
     Fiber.schedule do
-        leafer.run
+      leafer.run
     end
+    Sample.ensure(leafer)
   end
 end
