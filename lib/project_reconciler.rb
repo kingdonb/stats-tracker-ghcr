@@ -92,13 +92,13 @@ module Project
             name: name, namespace: 'default'
           },
           spec: {
-            projectName: 'fluxcd', packageName: image, repoName: repoName
+            projectName: projectName, packageName: image, repoName: repoName
           }
         }))
       end
 
       last_update = DateTime.now.in_time_zone
-      register_health_check(k8s: k8s, count: count, last_update: last_update)
+      register_health_check(k8s: k8s, count: count, last_update: last_update, project_name: projectName)
       @eventHelper.add(obj,"registered health check for leaves from project/#{projectName}")
 
       {:status => {
@@ -111,9 +111,9 @@ module Project
       @logger.info("delete project with the name #{obj["spec"]["projectName"]}")
     end
 
-    def register_health_check(k8s:, count:, last_update:)
+    def register_health_check(k8s:, count:, last_update:, project_name:)
       # Store the number of packages from @ts for health checking later
-      gho = ::GithubOrg.find_or_create_by(name: 'fluxcd')
+      gho = ::GithubOrg.find_or_create_by(name: project_name)
       gho.package_count = count
       gho.save!
 
