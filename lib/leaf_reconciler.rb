@@ -31,16 +31,18 @@ module Leaf
     end
 
     def upsert(obj)
-      @logger.info("create new leaf with the name #{obj["spec"]["packageName"]}")
-      @eventHelper.add(obj,"an event from upsert")
-      # binding.pry
+      name = obj["metadata"]["name"]
+      @logger.info("create new leaf {packageName: #{obj["spec"]["packageName"]}}")
 
-      # We will still have a problem here, because we forgot to pass repoName
       project = obj["spec"]["projectName"]
       repo = obj["spec"]["repoName"]
       image = obj["spec"]["packageName"]
 
+      k8s = @opi.instance_variable_get("@k8sclient")
+
       r = get_current_stat_with_time(project, repo, image)
+
+      @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
 
       fluxcd = ::GithubOrg.find_by(name: 'fluxcd')
 
@@ -49,6 +51,12 @@ module Leaf
 
       package_obj.download_count = r[:count]
       package_obj.save!
+      Fiber.schedule do
+        repo_obj.run
+      end
+      Fiber.schedule do
+        package_obj.run
+      end
 
       # Here is where we should call our wasm module, and the fetcher
       {:status => {

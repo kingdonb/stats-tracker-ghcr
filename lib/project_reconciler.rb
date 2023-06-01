@@ -49,19 +49,19 @@ module Project
     end
     
     def upsert(obj)
-      @logger.info("create new project with the name #{obj["spec"]["projectName"]}")
-      @eventHelper.add(obj,"an event from upsert")
+      projectName = obj["spec"]["projectName"]
+      @logger.info("create new project {projectName: #{projectName}}")
 
       create_new_leaves(obj)
 
       k8s = @opi.instance_variable_get("@k8sclient")
       @ts.each do |t|
-        name = t[0].gsub("/", "-")
+        name = t[0].gsub("/", "-") # Slashes are not permitted in RFC-1123 names
         origName = t[0]
-        # binding.pry if name == "charts-flagger"
+        @eventHelper.add(obj,"registering health check for leaf/#{name} from project/#{projectName}")
+
         path = t[1]
         image = path.split("/")[6]
-        # binding.pry if name == "charts-flagger"
 
         # d = <<~YAML
         #   ---
@@ -72,6 +72,7 @@ module Project
         #   spec:
         #     projectName: "fluxcd"
         #     packageName: "#{image}"
+        #     repoName: "#{origName}"
         # YAML
 
         begin
@@ -91,11 +92,12 @@ module Project
             projectName: 'fluxcd', packageName: image, repoName: origName
           }
         }))
-
-        # binding.pry if name == "charts/flagger"
       end
 
       gho = ::GithubOrg.find_or_create_by(name: 'fluxcd')
+      Fiber.schedule do
+        gho.run
+      end
 
       {:status => {:message => "upsert works fine"}}
     end
