@@ -55,13 +55,16 @@ module Project
       create_new_leaves(obj)
 
       k8s = @opi.instance_variable_get("@k8sclient")
+
+      count = @ts.count
+
       @ts.each do |t|
         name = t[0].gsub("/", "-") # Slashes are not permitted in RFC-1123 names
         origName = t[0]
-        @eventHelper.add(obj,"registering health check for leaf/#{name} from project/#{projectName}")
 
-        path = t[1]
+        path = t[1][0]
         image = path.split("/")[6]
+        repoName = t[1][1]
 
         # d = <<~YAML
         #   ---
@@ -89,17 +92,26 @@ module Project
             name: name, namespace: 'default'
           },
           spec: {
-            projectName: 'fluxcd', packageName: image, repoName: origName
+            projectName: 'fluxcd', packageName: image, repoName: repoName
           }
         }))
       end
 
+      # Store the number of packages from @ts for health checking later
       gho = ::GithubOrg.find_or_create_by(name: 'fluxcd')
-      Fiber.schedule do
-        gho.run
-      end
+      gho.package_count = count
+      gho.save!
 
-      {:status => {:message => "upsert works fine"}}
+      # Do the health checking (later)
+      Fiber.schedule do
+        gho.run(k8s)
+      end
+      @eventHelper.add(obj,"registered health check for leaves from project/#{projectName}")
+
+      {:status => {
+        :count => count.to_s,
+        :lastUpdate => DateTime.now.in_time_zone
+      }}
     end
 
     def delete(obj)
@@ -121,11 +133,24 @@ module Project
       g = l.parse
       d = g.css("div#org-packages div.flex-auto a.text-bold")
       @ts = {}
-      # binding.pry
+
       d.map{|t|
         title = t.attributes["title"]
         href = t.attributes["href"]
-        @ts[title] = href
+
+        # Ignore these 2y+ old images with no parent repository
+        unless /-arm64$/ =~ title
+          s = t.next_sibling.next_sibling
+          str_len = project.length
+
+          repo = s.children[5].inner_text
+          # Published on ... by Flux project in fluxcd/flagger
+          if /\A#{project}\// =~ repo # remove "fluxcd/"
+            repo.slice!(0, str_len + 1)
+          end
+
+          @ts[title] = [href, repo]
+        end
       }
 
       # create one Leaf for each t in ts

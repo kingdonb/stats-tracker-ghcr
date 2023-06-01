@@ -4,6 +4,6 @@ class Repository < ApplicationRecord
   belongs_to :github_org
 
   def run(k8s)
-    binding.pry
+    # binding.pry
   end
 end

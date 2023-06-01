@@ -4,6 +4,6 @@ class Package < ApplicationRecord
   belongs_to :repository
 
   def run(k8s)
-    binding.pry
+    # binding.pry
   end
 end

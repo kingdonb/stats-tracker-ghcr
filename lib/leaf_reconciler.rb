@@ -31,6 +31,7 @@ module Leaf
     end
 
     def upsert(obj)
+      begin
       name = obj["metadata"]["name"]
       @logger.info("create new leaf {packageName: #{obj["spec"]["packageName"]}}")
 
@@ -52,10 +53,13 @@ module Leaf
       package_obj.download_count = r[:count]
       package_obj.save!
       Fiber.schedule do
-        repo_obj.run
+        repo_obj.run(k8s)
       end
       Fiber.schedule do
-        package_obj.run
+        package_obj.run(k8s)
+      end
+      rescue ArgumentError => e
+        binding.pry
       end
 
       # Here is where we should call our wasm module, and the fetcher
@@ -82,7 +86,14 @@ module Leaf
     end
 
     def http_client_wrapped(http_client, project, repo, image)
+      begin
+
       http_client.call("https://github.com/#{project}/#{repo}/pkgs/container/#{image}")
+
+      rescue OpenURI::HTTPError => e
+        binding.pry
+      end
+
     end
 
     def http_client_read
