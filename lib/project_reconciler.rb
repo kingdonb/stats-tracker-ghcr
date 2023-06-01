@@ -17,6 +17,7 @@ require 'pg'
 require 'dotenv'
 
 require './app/models/github_org'
+require './app/models/package'
 
 module Project
   class Operator
@@ -111,7 +112,31 @@ module Project
     end
 
     def delete(obj)
-      @logger.info("delete project with the name #{obj["spec"]["projectName"]}")
+      project_name = obj["spec"]["projectName"]
+      @logger.info("delete project with the name #{project_name}")
+      gho = ::GithubOrg.find_by(name: project_name)
+      pkgs = ::Package.where(repository: {github_org_id: 1}).includes(:repository)
+      if pkgs.count > 0
+        k8s = @opi.instance_variable_get("@k8sclient")
+        @logger.info("deleting any leaves with the projectName #{project_name}")
+
+        # delete_options = Kubeclient::Resource.new(
+        #   apiVersion: 'example.com/v1alpha1',
+        #   gracePeriodSeconds: 0,
+        #   kind: 'DeleteOptions'
+        # )
+        pkgs.each do |pkg|
+          name = pkg.name
+          leaf_name = if "charts%2Fflagger" == name
+                        "charts-flagger"
+                      else
+                        name
+                      end
+          namespace = 'default'
+          k8s.delete_leaf(leaf_name, namespace, {})
+        end
+      end
+      @logger.info("reached the end of delete for Project named: #{project_name}")
     end
 
     def register_health_check(k8s:, count:, last_update:, project_name:)

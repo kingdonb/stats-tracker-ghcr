@@ -21,8 +21,18 @@ class GithubOrg < ApplicationRecord
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{package_count}) #######"
-    # binding.pry
 
+    if c == package_count
+      puts "########### cleaning up (OK!) #######"
+      # (Do the measurement here)
+
+      # Delete Sample project when we finished
+      k8s.delete_project('fluxcd', 'default', {})
+    else
+      puts "########### c (#{c}) != package_count (#{package_count}) #######"
+    end
+
+    puts "########### this is the end of the GithubOrg#run Health Check method #######"
     # Watch all the Leaves, and when they
     # are ready, mark Project ready as well
   end

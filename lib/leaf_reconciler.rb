@@ -31,8 +31,9 @@ module Leaf
     end
 
     def upsert(obj)
+      packageName = obj["spec"]["packageName"]
       name = obj["metadata"]["name"]
-      @logger.info("create new leaf {packageName: #{obj["spec"]["packageName"]}}")
+      @logger.info("create new leaf {packageName: #{packageName}}")
 
       project = obj["spec"]["projectName"]
       repo = obj["spec"]["repoName"]
