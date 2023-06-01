@@ -6,6 +6,6 @@ class Package < ApplicationRecord
   def run(k8s:, last_update:)
     # It's time to mark the Leaves as Ready
     #
-    # binding.pry
+    binding.pry
   end
 end

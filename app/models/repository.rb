@@ -1,6 +1,7 @@
 require 'pry'
 
 class Repository < ApplicationRecord
+  has_many :packages
   belongs_to :github_org
 
   def run(k8s:, last_update:)
@@ -9,6 +10,7 @@ class Repository < ApplicationRecord
     #
     # Let's mark the Repository as updated:
     if updated_at < last_update
+      touch
       save!
     end
   end

@@ -2,6 +2,9 @@ require 'pry'
 require './app/models/package'
 
 class GithubOrg < ApplicationRecord
+  has_many :repositories
+  has_many :packages, through: :repositories
+
   def run(k8s:, last_update:)
     t = last_update
     n = 0
