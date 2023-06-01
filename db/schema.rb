@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_05_31_214120) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_01_164914) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,6 +24,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_31_214120) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "package_count"
   end
 
   create_table "measurements", force: :cascade do |t|
@@ -38,7 +39,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_31_214120) do
   create_table "packages", force: :cascade do |t|
     t.string "name"
     t.bigint "repository_id", null: false
-    t.integer "download_count"
+    t.bigint "download_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["repository_id"], name: "index_packages_on_repository_id"

@@ -10,7 +10,7 @@
 // extern crate scraper;
 
 struct X {
-    i: i32,
+    i: i64,
 }
 
 // #[wasm_bindgen]
@@ -19,7 +19,7 @@ struct X {
 // }
 
 // #[wasm_bindgen]
-pub fn count_from_html(html: String) -> i32 {
+pub fn count_from_html(html: String) -> i64 {
     // Scraper using a mapped directory
     use scraper::{Html, Selector};
 
@@ -33,7 +33,7 @@ pub fn count_from_html(html: String) -> i32 {
         let h3 = Selector::parse("h3").unwrap();
         for counter in t.select(&h3) {
             let count = counter.value().attr("title").unwrap();
-            x.i = count.parse::<i32>().unwrap();
+            x.i = count.parse::<i64>().unwrap();
         }
     }
     return x.i;
