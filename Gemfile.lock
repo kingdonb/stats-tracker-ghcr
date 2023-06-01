@@ -271,6 +271,7 @@ DEPENDENCIES
   bootsnap
   capybara
   debug
+  dotenv
   dotenv-rails
   fiber_scheduler
   gammo

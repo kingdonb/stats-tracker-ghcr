@@ -17,6 +17,7 @@ gem 'wasmer'
 gem 'thor'
 
 gem 'dotenv-rails', groups: [:development, :test]
+gem 'dotenv'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.0.5"
