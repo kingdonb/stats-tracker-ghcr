@@ -47,7 +47,7 @@ module Leaf
       fluxcd = nil
 
       loop do
-        fluxcd = ::GithubOrg.find_by(name: projectName)
+        fluxcd = ::GithubOrg.find_by(name: project)
         break if fluxcd.present?
         sleep 2
       end
