@@ -62,8 +62,6 @@ module Leaf
 
       Fiber.schedule do
         repo_obj.run(k8s:, last_update: t)
-      end
-      Fiber.schedule do
         package_obj.run(k8s:, last_update: t)
       end
     # rescue ArgumentError => e
@@ -71,7 +69,8 @@ module Leaf
       # Here is where we should call our wasm module, and the fetcher
       {:status => {
         :count => r[:count],
-        :lastUpdate => r[:time].to_s
+        :lastUpdate => r[:time].to_s,
+        # :conditions => 
       }}
     end
 
