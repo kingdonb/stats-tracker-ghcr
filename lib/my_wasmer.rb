@@ -25,7 +25,7 @@ def capturing_output
 
       stdout.read
     rescue RuntimeError
-      raise ScriptError.new stdout.read, stderr.read, $!.message
+      raise ScriptError, "#{stdout.read}, #{stderr.read}, #{$!.message}"
     end
   ensure
     $stdout.reopen old_stdout
@@ -63,9 +63,16 @@ def wasmer_current_download_count(html, repo, image)
   # Call the Wasm (it may use the system interface for IO)
   instance = Wasmer::Instance.new module_, import_object
   # results = instance.exports.count_from_html.()
-  returned_string = capturing_output do
-    instance.exports._start.()
-  end.chomp
+
+  ## It turns out that Source Controller has >i32.max downloads (!)
+  # begin
+    returned_string = capturing_output do
+      instance.exports._start.()
+    end.chomp
+  # rescue ScriptError => e
+  #   binding.pry
+  #   raise e
+  # end
 
   return returned_string
 end

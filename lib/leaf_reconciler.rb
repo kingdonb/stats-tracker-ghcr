@@ -1,6 +1,16 @@
 require 'kubernetes-operator'
 require 'pry'
 
+require 'active_record'
+require './app/models/application_record'
+# Bundler.require(*Rails.groups)
+require 'pg'
+# require 'dotenv'
+
+require './app/models/github_org'
+require './app/models/repository'
+require './app/models/package'
+
 module Leaf
   class Operator
     require './lib/my_wasmer'
@@ -21,22 +31,47 @@ module Leaf
     end
 
     def upsert(obj)
-      @logger.info("create new leaf with the name #{obj["spec"]["packageName"]}")
-      @eventHelper.add(obj,"an event from upsert")
-      # binding.pry
+      packageName = obj["spec"]["packageName"]
+      name = obj["metadata"]["name"]
+      @logger.info("create new leaf {packageName: #{packageName}}")
 
-      # We will still have a problem here, because we forgot to pass repoName
       project = obj["spec"]["projectName"]
       repo = obj["spec"]["repoName"]
       image = obj["spec"]["packageName"]
 
+      k8s = @opi.instance_variable_get("@k8sclient")
+
       r = get_current_stat_with_time(project, repo, image)
-      # binding.pry
+
+      @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
+
+      fluxcd = nil
+
+      loop do
+        fluxcd = ::GithubOrg.find_by(name: project)
+        break if fluxcd.present?
+        sleep 2
+      end
+
+      repo_obj = ::Repository.find_or_create_by(name: repo, github_org: fluxcd)
+      package_obj = ::Package.find_or_create_by(name: image, repository: repo_obj)
+
+      package_obj.download_count = r[:count]
+      package_obj.save!
+
+      t = DateTime.now.in_time_zone
+
+      Fiber.schedule do
+        repo_obj.run(k8s:, last_update: t)
+        package_obj.run(k8s:, last_update: t)
+      end
+    # rescue ArgumentError => e
 
       # Here is where we should call our wasm module, and the fetcher
       {:status => {
         :count => r[:count],
-        :lastUpdate => r[:time].to_s
+        :lastUpdate => r[:time].to_s,
+        # :conditions => 
       }}
     end
 
@@ -57,7 +92,12 @@ module Leaf
     end
 
     def http_client_wrapped(http_client, project, repo, image)
-      http_client.call("https://github.com/#{project}/#{repo}/pkgs/container/#{image}")
+
+      url = "https://github.com/#{project}/#{repo}/pkgs/container/#{image}"
+      http_client.call(url)
+
+    # rescue OpenURI::HTTPError => e
+
     end
 
     def http_client_read
