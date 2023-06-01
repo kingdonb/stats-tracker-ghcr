@@ -1,6 +1,16 @@
 require 'kubernetes-operator'
 require 'pry'
 
+require 'active_record'
+require './app/models/application_record'
+# Bundler.require(*Rails.groups)
+require 'pg'
+# require 'dotenv'
+
+require './app/models/github_org'
+require './app/models/repository'
+require './app/models/package'
+
 module Leaf
   class Operator
     require './lib/my_wasmer'
@@ -31,7 +41,14 @@ module Leaf
       image = obj["spec"]["packageName"]
 
       r = get_current_stat_with_time(project, repo, image)
-      # binding.pry
+
+      fluxcd = ::GithubOrg.find_by(name: 'fluxcd')
+
+      repo_obj = ::Repository.find_or_create_by(name: repo, github_org: fluxcd)
+      package_obj = ::Package.find_or_create_by(name: image, repository: repo_obj)
+
+      package_obj.download_count = r[:count]
+      package_obj.save!
 
       # Here is where we should call our wasm module, and the fetcher
       {:status => {
