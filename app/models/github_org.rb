@@ -28,6 +28,8 @@ class GithubOrg < ApplicationRecord
 
       # Delete Sample project when we finished
       k8s.delete_project('fluxcd', 'default', {})
+      touch
+      save!
     else
       puts "########### c (#{c}) != package_count (#{package_count}) #######"
     end
