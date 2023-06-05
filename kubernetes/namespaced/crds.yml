@@ -11,7 +11,17 @@ spec:
     kind: "Project"
   scope: "Namespaced"
   versions:
-  - name: "v1alpha1"
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+      name: Status
+      type: string
+    name: "v1alpha1"
     schema:
       openAPIV3Schema:
         required: ["spec"]
@@ -103,7 +113,17 @@ spec:
     kind: "Leaf"
   scope: "Namespaced"
   versions:
-  - name: "v1alpha1"
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+      name: Status
+      type: string
+    name: "v1alpha1"
     schema:
       openAPIV3Schema:
         required: ["spec"]
