@@ -81,6 +81,9 @@ test:
 #
 production:
   <<: *default
-  database: grafana_downloads_app_production
-  username: grafana_downloads_app
-  password: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"] %>
+  url: <%= ENV["NEON_TECH_DATABASE_URL"] %>
+  # database: grafana_downloads_app_production
+  # username: grafana_downloads_app
+  # password: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"] %>
+  # host: dl-count-db.turkey.local
+  # port: 5432

@@ -24,7 +24,7 @@ class GithubOrg < ApplicationRecord
 
     if c == package_count
       puts "########### cleaning up (OK!) #######"
-      # (Do the measurement here)
+      Measurement.do_measurement
 
       # Delete Sample project when we finished
       k8s.delete_project('fluxcd', 'default', {})
