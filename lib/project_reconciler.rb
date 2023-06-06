@@ -145,10 +145,11 @@ module Project
       gho.package_count = count
       gho.save!
 
-      # Do the health checking (later)
-      Fiber.schedule do
-        gho.run(k8s: k8s, last_update: last_update)
-      end
+      # Health checks are done in a concurrent (foreman) job
+      # # Do the health checking (later)
+      # Fiber.schedule do
+      #   gho.run(k8s: k8s, last_update: last_update)
+      # end
     end
 
     def create_new_leaves(obj)
