@@ -14,7 +14,13 @@ class Measurement < ApplicationRecord
     database_init
     k8s = kube_init
 
-    gho = GithubOrg.find_by(name: 'fluxcd')
+    project = 'fluxcd'
+    gho = nil
+    loop do
+      gho = ::GithubOrg.find_by(name: project)
+      break if gho.present?
+      sleep 2
+    end
 
     t = DateTime.now.in_time_zone.to_time - 5
     n = 0
@@ -108,8 +114,16 @@ class Measurement < ApplicationRecord
 
   def self.do_measurement
     t = DateTime.now.in_time_zone - 64
-    p = Package.where('updated_at > ?', t)
-    #binding.pry
-    puts "######## DOING MEASUREMENT NOW ##########"
+    ps = Package.where('updated_at > ?', t)
+    Package.transaction do
+      ps.map do |p|
+        m = Measurement.new(
+          measured_at: p.updated_at,
+          count: p.download_count,
+          package: p)
+        m.save
+      end
+      puts "######## RECORDING MEASUREMENT NOW ##########"
+    end
   end
 end
