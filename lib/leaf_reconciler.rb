@@ -71,7 +71,7 @@ module Leaf
       package_obj.download_count = r[:count]
       package_obj.save!
 
-      t = DateTime.now.in_time_zone
+      t = DateTime.now.in_time_zone.to_time
 
       # Fiber.schedule do
         repo_obj.run(k8s:, last_update: t)

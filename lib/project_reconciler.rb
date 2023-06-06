@@ -57,7 +57,7 @@ module Project
 
       k8s = @opi.instance_variable_get("@k8sclient")
 
-      time_t = DateTime.now.in_time_zone
+      time_t = DateTime.now.in_time_zone.to_time
       count = @ts.count
 
       @ts.each do |t|
@@ -99,14 +99,16 @@ module Project
         }))
       end
 
-      last_update = DateTime.now.in_time_zone
+      # If we could pass last_update ahead, to the health checker...
+      # but now it sits in a separate process under foreman!
+      last_update = DateTime.now.in_time_zone.to_time
       # Consider any changes since we started reconciling (time_t) as progress and mark us ready.
       register_health_check(k8s: k8s, count: count, last_update: time_t, project_name: projectName)
       @eventHelper.add(obj,"registered health check for leaves from project/#{projectName}")
 
       {:status => {
         :count => count.to_s,
-        :lastUpdate => last_update,
+        :lastUpdate => time_t,
         # :conditions => 
       }}
     end
@@ -146,6 +148,7 @@ module Project
     def register_health_check(k8s:, count:, last_update:, project_name:)
       # Store the number of packages from @ts for health checking later
       gho = ::GithubOrg.find_or_create_by(name: project_name)
+      gho.updated_at = last_update
       gho.package_count = count
       gho.save!
 
