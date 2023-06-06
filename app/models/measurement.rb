@@ -46,7 +46,7 @@ class Measurement < ApplicationRecord
       puts "########### c (#{c}) != package_count (#{gho.package_count}) #######"
     end
 
-    while g = k8s.get_leaves(namespace: 'default').count > 0
+    while (g = k8s.get_leaves(namespace: 'default').count) > 0
       puts "########### g (#{g}) leaves left; still collecting #######"
       sleep 5
     end
