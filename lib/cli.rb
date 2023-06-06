@@ -5,6 +5,7 @@ require 'thor'
 require './lib/project_reconciler'
 require './lib/leaf_reconciler'
 require './lib/sample'
+require './app/models/measurement'
 
 class MyCLI < Thor
 
