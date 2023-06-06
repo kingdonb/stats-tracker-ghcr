@@ -46,6 +46,8 @@ class Measurement < ApplicationRecord
       puts "########### c (#{c}) != package_count (#{gho.package_count}) #######"
     end
 
+    sleep 10
+
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
   end
 
