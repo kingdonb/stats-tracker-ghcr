@@ -27,9 +27,9 @@ class Measurement < ApplicationRecord
       c = how_many_are_ready(packs, k8s: k8s)
 
       # Assume we get here within 5s (no, it's not really safe)
-      break if c == gho.package_count || n >= 8
+      break if c == gho.package_count || n >= 9
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
-      sleep 4
+      sleep 7
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{gho.package_count}) #######"
@@ -44,11 +44,12 @@ class Measurement < ApplicationRecord
       gho.save!
     else
       puts "########### c (#{c}) != package_count (#{gho.package_count}) #######"
+      # FIXME: Leave a mess (someone should debug this mess)
     end
 
     while (g = k8s.get_leaves(namespace: 'default').count) > 0
       puts "########### g (#{g}) leaves left; still collecting #######"
-      sleep 5
+      sleep 3
     end
 
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
@@ -99,14 +100,14 @@ class Measurement < ApplicationRecord
     else
       last = DateTime.parse(lastUpdate).to_time
       now = DateTime.now.in_time_zone.to_time
-      ready = now - last < 32
+      ready = now - last < 60
     end
   # rescue Kubeclient::ResourceNotFoundError
   #   return false
   end
 
   def self.do_measurement
-    t = DateTime.now.in_time_zone - 30
+    t = DateTime.now.in_time_zone - 64
     p = Package.where('updated_at > ?', t)
     #binding.pry
     puts "######## DOING MEASUREMENT NOW ##########"
