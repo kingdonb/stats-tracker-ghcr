@@ -9,6 +9,8 @@ spec:
     plural: "projects"
     singular: "project"
     kind: "Project"
+    shortNames:
+    - proj
   scope: "Namespaced"
   versions:
   - additionalPrinterColumns:
@@ -111,6 +113,8 @@ spec:
     plural: "leaves"
     singular: "leaf"
     kind: "Leaf"
+    shortNames:
+    - l
   scope: "Namespaced"
   versions:
   - additionalPrinterColumns:
