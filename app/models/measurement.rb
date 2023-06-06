@@ -16,7 +16,7 @@ class Measurement < ApplicationRecord
 
     gho = GithubOrg.find_by(name: 'fluxcd')
 
-    t = DateTime.now.in_time_zone - 5
+    t = DateTime.now.in_time_zone.to_time - 5
     n = 0
     c = 0
 
@@ -27,9 +27,9 @@ class Measurement < ApplicationRecord
       c = how_many_are_ready(packs, k8s: k8s)
 
       # Assume we get here within 5s (no, it's not really safe)
-      break if c == gho.package_count || n >= 300
+      break if c == gho.package_count || n >= 8
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
-      sleep 10
+      sleep 4
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{gho.package_count}) #######"
@@ -46,7 +46,10 @@ class Measurement < ApplicationRecord
       puts "########### c (#{c}) != package_count (#{gho.package_count}) #######"
     end
 
-    sleep 10
+    while g = k8s.get_leaves(namespace: 'default').count > 0
+      puts "########### g (#{g}) leaves left; still collecting #######"
+      sleep 5
+    end
 
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
   end
@@ -96,24 +99,10 @@ class Measurement < ApplicationRecord
     else
       last = DateTime.parse(lastUpdate).to_time
       now = DateTime.now.in_time_zone.to_time
-      ready = now - last < 30
+      ready = now - last < 32
     end
   # rescue Kubeclient::ResourceNotFoundError
   #   return false
-  end
-
-  def self.is_package_ready?(package, k8s:)
-    lastUpdate = l&.status&.lastUpdate
-    if lastUpdate.nil?
-      false
-    else
-      lastUpdate = l.status.lastUpdate
-      last = DateTime.parse(lastUpdate).to_time
-      now = DateTime.now.in_time_zone.to_time
-      ready = now - last < 30
-    end
-  rescue Kubeclient::ResourceNotFoundError
-    return false
   end
 
   def self.do_measurement
