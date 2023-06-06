@@ -5,7 +5,7 @@ require 'active_record'
 require './app/models/application_record'
 # Bundler.require(*Rails.groups)
 require 'pg'
-# require 'dotenv'
+require 'dotenv'
 
 require './app/models/github_org'
 require './app/models/repository'
@@ -18,6 +18,18 @@ module Leaf
       crdGroup = "example.com"
       crdVersion = "v1alpha1"
       crdPlural = "leaves"
+
+      # Load DATABASE_PASSWORD into env
+      Dotenv.load '.env.local'
+
+      # TODO: make this parse or reuse the connection from database.yml
+      ActiveRecord::Base.establish_connection(
+        adapter:  'postgresql', # or 'postgresql' or 'sqlite3'
+        database: 'dlcounts',
+        username: 'thecount',
+        password: ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"],
+        host:     'dl-count-db.turkey.local'
+      )
 
       @opi = KubernetesOperator.new(crdGroup,crdVersion,crdPlural)
       @logger = @opi.getLogger
@@ -61,10 +73,10 @@ module Leaf
 
       t = DateTime.now.in_time_zone
 
-      Fiber.schedule do
+      # Fiber.schedule do
         repo_obj.run(k8s:, last_update: t)
         package_obj.run(k8s:, last_update: t)
-      end
+      # end
     # rescue ArgumentError => e
 
       # Here is where we should call our wasm module, and the fetcher

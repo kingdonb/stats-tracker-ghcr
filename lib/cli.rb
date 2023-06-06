@@ -5,23 +5,39 @@ require 'thor'
 require './lib/project_reconciler'
 require './lib/leaf_reconciler'
 require './lib/sample'
+require './app/models/measurement'
 
 class MyCLI < Thor
 
-  desc "controller ORG", "Create a Project for the GitHub ORG and start reconciling it"
-  def controller(name: "fluxcd")
-    # puts "calling Fiber.schedule for do_update loop"
-    Fiber.set_scheduler(FiberScheduler.new)
+  desc "sample ORG", "Create a Project for the GitHub ORG and Reconcile projects"
+  def sample(name: "fluxcd")
+    # Fiber.set_scheduler(FiberScheduler.new)
 
     projer = Project::Operator.new
+    Sample.ensure(projer)
+
+    projer.run
+  end
+
+  desc "proj", "Reconcile the projects (GithubOrgs)"
+  def proj()
+    # Fiber.set_scheduler(FiberScheduler.new)
+    projer = Project::Operator.new
+
+    projer.run
+  end
+
+  desc "leaf", "Reconcile the leaves (Packages)"
+  def leaf()
+    # Fiber.set_scheduler(FiberScheduler.new)
     leafer = Leaf::Operator.new
 
-    Fiber.schedule do
-      projer.run
-    end
-    Fiber.schedule do
-      leafer.run
-    end
-    Sample.ensure(leafer)
+    leafer.run
+  end
+
+  desc "measure", "Do the measurement (Health Checks)"
+  def measure()
+    # Fiber.set_scheduler(FiberScheduler.new)
+    Measurement.call
   end
 end

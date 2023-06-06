@@ -126,6 +126,7 @@ module Project
         #   kind: 'DeleteOptions'
         # )
         pkgs.each do |pkg|
+          begin
           name = pkg.name
           leaf_name = if "charts%2Fflagger" == name
                         "charts-flagger"
@@ -134,6 +135,9 @@ module Project
                       end
           namespace = 'default'
           k8s.delete_leaf(leaf_name, namespace, {})
+          rescue Kubeclient::ResourceNotFoundError
+            # it's already deleted
+          end
         end
       end
       @logger.info("reached the end of delete for Project named: #{project_name}")
@@ -145,10 +149,11 @@ module Project
       gho.package_count = count
       gho.save!
 
-      # Do the health checking (later)
-      Fiber.schedule do
-        gho.run(k8s: k8s, last_update: last_update)
-      end
+      # Health checks are done in a concurrent (foreman) job
+      # # Do the health checking (later)
+      # Fiber.schedule do
+      #   gho.run(k8s: k8s, last_update: last_update)
+      # end
     end
 
     def create_new_leaves(obj)
