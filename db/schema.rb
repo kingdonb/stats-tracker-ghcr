@@ -10,15 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_01_164914) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_01_141806) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "git_hub_orgs", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "github_orgs", force: :cascade do |t|
     t.string "name"
@@ -29,7 +23,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_01_164914) do
 
   create_table "measurements", force: :cascade do |t|
     t.bigint "package_id", null: false
-    t.integer "count"
+    t.bigint "count"
     t.datetime "measured_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
