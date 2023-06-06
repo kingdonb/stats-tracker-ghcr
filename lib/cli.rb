@@ -13,9 +13,9 @@ class MyCLI < Thor
     Fiber.set_scheduler(FiberScheduler.new)
 
     projer = Project::Operator.new
+    Sample.ensure(projer)
 
     projer.run
-    Sample.ensure(projer)
   end
 
   desc "proj", "Reconcile the projects (GithubOrgs)"

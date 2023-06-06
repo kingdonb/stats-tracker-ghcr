@@ -73,10 +73,10 @@ module Leaf
 
       t = DateTime.now.in_time_zone
 
-      Fiber.schedule do
+      # Fiber.schedule do
         repo_obj.run(k8s:, last_update: t)
         package_obj.run(k8s:, last_update: t)
-      end
+      # end
     # rescue ArgumentError => e
 
       # Here is where we should call our wasm module, and the fetcher
