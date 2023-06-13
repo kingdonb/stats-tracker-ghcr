@@ -32,10 +32,10 @@ class Measurement < ApplicationRecord
 
       c = how_many_are_ready(packs, k8s: k8s)
 
-      # Assume we get here within 5s (no, it's not really safe)
-      break if c == gho.package_count || n >= 18
+      # This is not how you do scheduling but yolo swag
+      break if c == gho.package_count || n >= 53
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
-      sleep 6
+      sleep 2
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{gho.package_count}) #######"

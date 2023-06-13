@@ -14,10 +14,11 @@ require './app/models/package'
 module Leaf
   class Operator
     require './lib/my_wasmer'
-    def initialize
+    def initialize()
       crdGroup = "example.com"
       crdVersion = "v1alpha1"
       crdPlural = "leaves"
+      # @shard = shard
 
       # Load DATABASE_PASSWORD into env
       Dotenv.load '.env.local'
@@ -43,6 +44,20 @@ module Leaf
     end
 
     def upsert(obj)
+      # ## sharding
+      # #
+
+      # shard_key = obj[:metadata][:uid].hash
+
+      # unless (shard_key % 4) == (@shard - 1)
+      #   return {:status => {}}
+      # end
+
+      # # there are 4 shards
+      # # with shard keys: 1, 2, 3, 4
+      # #
+      # ## sharding
+
       packageName = obj["spec"]["packageName"]
       name = obj["metadata"]["name"]
       @logger.info("upsert called for {packageName: #{packageName}}")
@@ -56,6 +71,19 @@ module Leaf
 
       patch = {:status => {}}
 
+    if is_under_deletion?(obj)
+      generation = obj["metadata"]["generation"]
+      patch = {:status => {
+        :conditions => [{
+          :lastTransitionTime => DateTime.now,
+          :message => "",
+          :observedGeneration => generation,
+          :reason => "Terminating",
+          :status => "False",
+          :type => "Ready"
+        }]
+      }}
+    else
       if is_already_ready?(obj)
         @eventHelper.add(obj,"leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
       else
@@ -67,14 +95,14 @@ module Leaf
           # We'll be reconciling in a fiber, and upsert may get called again
           patch = {:status => {
             :conditions => [{
-              :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+              :lastTransitionTime => DateTime.now,
               :message => "Reconciling new generation #{generation}",
               :observedGeneration => generation,
               :reason => "NewGeneration",
               :status => "True",
               :type => "Reconciling"
             }, {
-              :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+              :lastTransitionTime => DateTime.now,
               :message => "Reconciling",
               :observedGeneration => generation,
               :reason => "Progressing",
@@ -116,34 +144,61 @@ module Leaf
           end # Fiber.schedule
         end # block where: set initial status condition, unless already_reconciling
       end # block where: short circuit when already_ready
+    end # block where: unless is_under_deletion
 
       # Return a condition patch, or an empty status hash for final merge
       return patch
     end
 
     def delete(obj)
-      @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
-      # generation = obj["metadata"]["generation"]
+      # ## sharding
+      # #
 
-      # patch = {:status => {
-      #   :conditions => [{
-      #     :lastTransitionTime => DateTime.now.in_time_zone.to_time,
-      #     :message => "Garbage collecting",
-      #     :observedGeneration => generation,
-      #     :reason => "Terminating",
-      #     :status => "True",
-      #     :type => "Reconciling"
-      #   }, {
-      #     :lastTransitionTime => DateTime.now.in_time_zone.to_time,
-      #     :message => "Garbage collecting",
-      #     :observedGeneration => generation,
-      #     :reason => "Terminating",
-      #     :status => "False",
-      #     :type => "Ready"
-      #   }
-      #   ]
-      # }}
-      # k8s.patch_entity('leaves', name + "/status", new_status, 'merge-patch', 'default')
+      # shard_key = obj[:metadata][:uid].hash
+
+      # unless (shard_key % 4) == (@shard - 1)
+      #   return
+      # end
+
+      # # there are 4 shards
+      # # with shard keys: 1, 2, 3, 4
+      # #
+      # ## sharding
+
+      @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
+      k8s = @opi.instance_variable_get("@k8sclient")
+      store = @opi.instance_variable_get("@store")
+      name = obj["metadata"]["name"]
+      generation = obj["metadata"]["generation"]
+
+      patch = {:status => {
+        :conditions => [{
+          :lastTransitionTime => DateTime.now,
+          :message => "Garbage collecting",
+          :observedGeneration => generation,
+          :reason => "Terminating",
+          :status => "True",
+          :type => "Reconciling"
+        }, {
+          :lastTransitionTime => DateTime.now,
+          :message => "Garbage collecting",
+          :observedGeneration => generation,
+          :reason => "Terminating",
+          :status => "False",
+          :type => "Ready"
+        }
+        ]
+      }}
+      patched = k8s.patch_entity('leaves', name + "/status", patch, 'merge-patch', 'default')
+
+      uid = obj[:metadata][:uid]
+      latest_version = patched[:metadata][:resourceVersion]
+      store.transaction do
+        if store[uid] < latest_version
+          store[uid] = latest_version
+          store.commit
+        end
+      end
     end
 
     def is_finalizer_set?(obj)
@@ -163,6 +218,16 @@ module Leaf
       reconciling = fetch_condition_by_type(
         obj: obj, cond_type: 'Reconciling')
       return is_current?(obj: obj, cond: reconciling)
+    end
+
+    def is_under_deletion?(obj)
+      ts = fetch_deletion_timestamp(obj: obj)
+      return !!ts
+    end
+
+    def fetch_deletion_timestamp(obj:)
+      metadata = obj["metadata"]
+      ts = metadata&.dig("deletionTimestamp")
     end
 
     def fetch_condition_by_type(obj:, cond_type:)
@@ -203,15 +268,15 @@ module Leaf
 
       # @eventHelper.add(obj,"saved package count in leaf/#{name}")
 
-      t = DateTime.now.in_time_zone.to_time
+      t = DateTime.now
 
-      repo_obj.run(k8s:, last_update: t)
-      package_obj.run(k8s:, last_update: t)
+      repo_obj.run(k8s:, last_update: t.in_time_zone.to_time)
+      package_obj.run(k8s:, last_update: t.in_time_zone.to_time)
 
       name = obj["metadata"]["name"]
       generation = obj["metadata"]["generation"]
 
-      @eventHelper.add(obj,"marking finally ready with patch_entity in leaf/#{name}")
+      # @eventHelper.add(obj,"marking finally ready with patch_entity in leaf/#{name}")
 
       new_status = {:status => {
         :count => r[:count],
