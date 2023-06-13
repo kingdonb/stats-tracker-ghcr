@@ -1,6 +1,16 @@
-.PHONY: foreman lib clean test all
+.PHONY: foreman lib clean test all docker base
+
+IMAGE:=kingdonb/opernator
+TAG:=latest
+BASE_TAG:=base
 
 all: clean lib test
+
+docker: base
+	docker buildx build --push --target app -t $(IMAGE):$(TAG) .
+
+base: lib
+	docker buildx build --push --target base -t $(IMAGE):$(BASE_TAG) .
 
 foreman:
 	date && time foreman start --no-timestamp
