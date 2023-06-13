@@ -6,7 +6,7 @@ BASE_TAG:=base
 
 all: clean lib test
 
-docker: base
+docker:
 	docker buildx build --push --target app -t $(IMAGE):$(TAG) .
 
 base: lib
