@@ -45,7 +45,7 @@ module Leaf
     def upsert(obj)
       packageName = obj["spec"]["packageName"]
       name = obj["metadata"]["name"]
-      @logger.info("create new leaf {packageName: #{packageName}}")
+      @logger.info("upsert called for {packageName: #{packageName}}")
 
       project = obj["spec"]["projectName"]
       repo = obj["spec"]["repoName"]
@@ -56,47 +56,66 @@ module Leaf
 
       patch = {:status => {}}
 
-      unless is_already_reconciling?(obj)
-        generation = obj["metadata"]["generation"]
+      if is_already_ready?(obj)
+        @eventHelper.add(obj,"leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
+      else
+        if is_already_reconciling?(obj)
+          # no need to set Reconciling condition, it's already set
+        else
+          generation = obj["metadata"]["generation"]
 
-        # We'll be reconciling asynchronously
-        patch = {:status => {
-          :conditions => [{
-            :lastTransitionTime => DateTime.now.in_time_zone.to_time,
-            :message => "Reconciling new generation #{generation}",
-            :observedGeneration => generation,
-            :reason => "NewGeneration",
-            :status => "True",
-            :type => "Reconciling"
-          }, {
-            :lastTransitionTime => DateTime.now.in_time_zone.to_time,
-            :message => "Reconciling",
-            :observedGeneration => generation,
-            :reason => "Progressing",
-            :status => "False",
-            :type => "Ready"
-          }
-          ]
-        }}
+          # We'll be reconciling in a fiber, and upsert may get called again
+          patch = {:status => {
+            :conditions => [{
+              :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+              :message => "Reconciling new generation #{generation}",
+              :observedGeneration => generation,
+              :reason => "NewGeneration",
+              :status => "True",
+              :type => "Reconciling"
+            }, {
+              :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+              :message => "Reconciling",
+              :observedGeneration => generation,
+              :reason => "Progressing",
+              :status => "False",
+              :type => "Ready"
+            }
+            ]
+          }}
 
-        # When the fiber gets back, it will store its results in the cache
-        Fiber.schedule do
-          watcher = k8s.watch_leaves(namespace: 'default', name: name)
-          watcher.each do |notice|
-            obj = notice.object
-            if is_already_reconciling?(obj)
-              patched = reconcile_async(obj: obj, name: name, project: project, repo: repo, image: image, k8s: k8s)
+          # When the fiber gets back, it will store its results in the cache
+          Fiber.schedule do
+            watcher = k8s.watch_leaves(namespace: 'default', name: name)
+            watcher.each do |notice|
+              # don't act on ADDED or DELETED notices
+              if notice.type == "MODIFIED"
+                new_obj = notice.object
 
-              # Storing the version ensures this patch does not call upsert again
-              store.transaction do
-                store[patched[:metadata][:uid]] = patched[:metadata][:resourceVersion]
-                store.commit
-              end
-              watcher.finish
-            end
-          end
-        end
-      end
+                # don't act unless Reconciling condition is set
+                if is_finalizer_set?(new_obj) && is_already_reconciling?(new_obj)
+                  uid = obj[:metadata][:uid]
+
+                  # call reconcile_async when "Reconciling" is called for
+                  patched = reconcile_async(obj: obj, name: name, project: project, repo: repo, image: image, k8s: k8s)
+
+                  # avoid upsert getting called again, (but some calls may still make it through)
+                  latest_version = patched[:metadata][:resourceVersion]
+                  store.transaction do
+                    if store[uid] < latest_version
+                      store[uid] = latest_version
+                      store.commit
+                    end
+                  end
+
+                  # we are done here, the watcher can be terminated
+                  watcher.finish
+                end # block where: finalizer_set && already_reconciling
+              end # block where: only MODIFIED
+            end # block where: watcher.each leaf in default namespace
+          end # Fiber.schedule
+        end # block where: set initial status condition, unless already_reconciling
+      end # block where: short circuit when already_ready
 
       # Return a condition patch, or an empty status hash for final merge
       return patch
@@ -104,6 +123,40 @@ module Leaf
 
     def delete(obj)
       @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
+      # generation = obj["metadata"]["generation"]
+
+      # patch = {:status => {
+      #   :conditions => [{
+      #     :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+      #     :message => "Garbage collecting",
+      #     :observedGeneration => generation,
+      #     :reason => "Terminating",
+      #     :status => "True",
+      #     :type => "Reconciling"
+      #   }, {
+      #     :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+      #     :message => "Garbage collecting",
+      #     :observedGeneration => generation,
+      #     :reason => "Terminating",
+      #     :status => "False",
+      #     :type => "Ready"
+      #   }
+      #   ]
+      # }}
+      # k8s.patch_entity('leaves', name + "/status", new_status, 'merge-patch', 'default')
+    end
+
+    def is_finalizer_set?(obj)
+      metadata = obj["metadata"]
+      finalizers = metadata&.dig("finalizers")
+      fin = finalizers&.select {|f| f == "leaves.v1alpha1.example.com"}
+      return !fin&.first.nil?
+    end
+
+    def is_already_ready?(obj)
+      ready = fetch_condition_by_type(
+        obj: obj, cond_type: 'Ready')
+      return is_current?(obj: obj, cond: ready)
     end
 
     def is_already_reconciling?(obj)
@@ -115,7 +168,7 @@ module Leaf
     def fetch_condition_by_type(obj:, cond_type:)
       status = obj["status"]
       conditions = status&.dig("conditions")
-      con = conditions&.select {|c| c[:type] == "Reconciling"}
+      con = conditions&.select {|c| c[:type] == cond_type}
       con&.first
     end
 
@@ -158,7 +211,7 @@ module Leaf
       name = obj["metadata"]["name"]
       generation = obj["metadata"]["generation"]
 
-      @eventHelper.add(obj,"marking ready with patch_entity in leaf/#{name}")
+      @eventHelper.add(obj,"marking finally ready with patch_entity in leaf/#{name}")
 
       new_status = {:status => {
         :count => r[:count],
