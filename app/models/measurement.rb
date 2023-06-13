@@ -19,7 +19,7 @@ class Measurement < ApplicationRecord
     loop do
       gho = ::GithubOrg.find_by(name: project)
       break if gho.present?
-      sleep 2
+      # sleep 2
     end
 
     t = DateTime.now.in_time_zone.to_time - 5
@@ -33,9 +33,9 @@ class Measurement < ApplicationRecord
       c = how_many_are_ready(packs, k8s: k8s)
 
       # This is not how you do scheduling but yolo swag
-      break if c == gho.package_count || n >= 53
+      break if c == gho.package_count || n >= 26
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
-      sleep 2
+      sleep 4
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{gho.package_count}) #######"
@@ -59,7 +59,7 @@ class Measurement < ApplicationRecord
     end
 
     # events are left behind if we exit here immediately
-    sleep 5
+    # sleep 5
 
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
   end

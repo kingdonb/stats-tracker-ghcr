@@ -85,7 +85,7 @@ module Leaf
       }}
     else
       if is_already_ready?(obj)
-        @eventHelper.add(obj,"leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
+        # @eventHelper.add(obj,"leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
       else
         if is_already_reconciling?(obj)
           # no need to set Reconciling condition, it's already set
@@ -255,7 +255,7 @@ module Leaf
       loop do
         fluxcd = ::GithubOrg.find_by(name: project)
         break if fluxcd.present?
-        sleep 2
+        # sleep 2
       end
 
       repo_obj = ::Repository.find_or_create_by(name: repo, github_org: fluxcd)
