@@ -38,7 +38,7 @@ module Leaf
       @opi.setDeleteMethod(method(:delete))
     end
 
-    def run 
+    def run
       @opi.run
     end
 
@@ -52,10 +52,85 @@ module Leaf
       image = obj["spec"]["packageName"]
 
       k8s = @opi.instance_variable_get("@k8sclient")
+      store = @opi.instance_variable_get("@store")
 
+      patch = {:status => {}}
+
+      unless is_already_reconciling?(obj)
+        generation = obj["metadata"]["generation"]
+
+        # We'll be reconciling asynchronously
+        patch = {:status => {
+          :conditions => [{
+            :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+            :message => "Reconciling new generation #{generation}",
+            :observedGeneration => generation,
+            :reason => "NewGeneration",
+            :status => "True",
+            :type => "Reconciling"
+          }, {
+            :lastTransitionTime => DateTime.now.in_time_zone.to_time,
+            :message => "Reconciling",
+            :observedGeneration => generation,
+            :reason => "Progressing",
+            :status => "False",
+            :type => "Ready"
+          }
+          ]
+        }}
+
+        # When the fiber gets back, it will store its results in the cache
+        Fiber.schedule do
+          watcher = k8s.watch_leaves(namespace: 'default', name: name)
+          watcher.each do |notice|
+            obj = notice.object
+            if is_already_reconciling?(obj)
+              patched = reconcile_async(obj: obj, name: name, project: project, repo: repo, image: image, k8s: k8s)
+
+              # Storing the version ensures this patch does not call upsert again
+              store.transaction do
+                store[patched[:metadata][:uid]] = patched[:metadata][:resourceVersion]
+                store.commit
+              end
+              watcher.finish
+            end
+          end
+        end
+      end
+
+      # Return a condition patch, or an empty status hash for final merge
+      return patch
+    end
+
+    def delete(obj)
+      @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
+    end
+
+    def is_already_reconciling?(obj)
+      reconciling = fetch_condition_by_type(
+        obj: obj, cond_type: 'Reconciling')
+      return is_current?(obj: obj, cond: reconciling)
+    end
+
+    def fetch_condition_by_type(obj:, cond_type:)
+      status = obj["status"]
+      conditions = status&.dig("conditions")
+      con = conditions&.select {|c| c[:type] == "Reconciling"}
+      con&.first
+    end
+
+    def is_current?(obj:, cond:)
+      metadata = obj["metadata"]
+      generation = metadata&.dig(:generation)
+      observed = cond&.dig(:observedGeneration)
+      # binding.pry
+      generation == observed
+    end
+
+    def reconcile_async(obj:, name:, project:, repo:, image:, k8s:)
       r = get_current_stat_with_time(project, repo, image)
 
-      @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
+      # @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
 
       fluxcd = nil
 
@@ -68,27 +143,38 @@ module Leaf
       repo_obj = ::Repository.find_or_create_by(name: repo, github_org: fluxcd)
       package_obj = ::Package.find_or_create_by(name: image, repository: repo_obj)
 
+      # @eventHelper.add(obj,"saving package count in leaf/#{name}")
+
       package_obj.download_count = r[:count]
       package_obj.save!
 
+      # @eventHelper.add(obj,"saved package count in leaf/#{name}")
+
       t = DateTime.now.in_time_zone.to_time
 
-      # Fiber.schedule do
-        repo_obj.run(k8s:, last_update: t)
-        package_obj.run(k8s:, last_update: t)
-      # end
-    # rescue ArgumentError => e
+      repo_obj.run(k8s:, last_update: t)
+      package_obj.run(k8s:, last_update: t)
 
-      # Here is where we should call our wasm module, and the fetcher
-      {:status => {
+      name = obj["metadata"]["name"]
+      generation = obj["metadata"]["generation"]
+
+      @eventHelper.add(obj,"marking ready with patch_entity in leaf/#{name}")
+
+      new_status = {:status => {
         :count => r[:count],
         :lastUpdate => r[:time].to_s,
-        # :conditions => 
-      }}
-    end
 
-    def delete(obj)
-      @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
+        :conditions => [ {
+          :lastTransitionTime => t,
+          :message => "OK",
+          :observedGeneration => generation,
+          :reason => "Succeeded",
+          :status => "True",
+          :type => "Ready"
+        } ]
+      } }
+
+      k8s.patch_entity('leaves', name + "/status", new_status, 'merge-patch', 'default')
     end
 
     def get_current_stat_with_time(project, repo, image)

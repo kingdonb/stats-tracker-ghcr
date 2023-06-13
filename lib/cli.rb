@@ -29,10 +29,12 @@ class MyCLI < Thor
 
   desc "leaf", "Reconcile the leaves (Packages)"
   def leaf()
-    # Fiber.set_scheduler(FiberScheduler.new)
+    Fiber.set_scheduler(FiberScheduler.new)
     leafer = Leaf::Operator.new
 
-    leafer.run
+    Fiber.schedule do
+      leafer.run
+    end
   end
 
   desc "measure", "Do the measurement (Health Checks)"
