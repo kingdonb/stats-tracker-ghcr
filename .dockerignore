@@ -6,7 +6,8 @@ build/
 test.wasm
 # lib/stat.wasm
 lib/stat.wasm.raw
-lib/cache/**
+lib/stat/target
+lib/cache
 !lib/cache/.keep
 lib/wabt
 wasm-ex1/
