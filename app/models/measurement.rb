@@ -58,6 +58,9 @@ class Measurement < ApplicationRecord
       sleep 3
     end
 
+    # events are left behind if we exit here immediately
+    sleep 5
+
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
   end
 
