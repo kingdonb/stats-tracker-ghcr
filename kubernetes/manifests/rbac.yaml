@@ -2,19 +2,19 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: stats-tracker-ghcr
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: stats-tracker-ghcr
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: stats-tracker-ghcr
-    namespace: default
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: stats-tracker-ghcr
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: cluster-admin
+# subjects:
+#   - kind: ServiceAccount
+#     name: stats-tracker-ghcr
+#     namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
