@@ -24,14 +24,20 @@ on:
           - latest
           - gem-cache
           - gems
+          - base
 env:
   BASE_TAG: base
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
+  WABT_VERSION: 1.0.33
+  BINARYEN_VERSION: "113"
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -46,18 +52,66 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push gems
-        uses: docker/build-push-action@v4
-        if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
         with:
-          context: .
-          push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
-          target: gems
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+          ruby-version: '3.1.4'
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        with:
+          target: wasm32-wasi
+
+      - name: Add local bin to path (wasm-strip, wasm-opt)
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # - name: Cache (restore) wasm-opt, wasm-strip
+      #   uses: actions/cache@v3
+      #   id: cache
+      #   if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+      #   with:
+      #     path: "${HOME}/.local/bin"
+      #     key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
+
+      - name: Install wabt, binaryen
+        uses: kingdonb/setup-wabt@v1.0.5
+        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        with:
+          version: ${{ env.WABT_VERSION }}
+          version2: ${{ env.BINARYEN_VERSION }}
+
+      - name: Add to path (wasm-strip, wasm-opt)
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        run: |
+          cp "$HOME/.wabt_${{ env.WABT_VERSION }}/bin/wasm-strip" "$HOME/.local/bin"
+          cp "$HOME/.binaryen_${{ env.BINARYEN_VERSION }}/bin/wasm-opt" "$HOME/.local/bin"
+
+      # - name: Build Binaryen (wasm-opt)
+      #   shell: bash
+      #   if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
+      #   run: |
+      #     # git clone https://github.com/WebAssembly/binaryen/
+      #     # pushd binaryen
+      #     # git submodule init
+      #     # git submodule update
+      #     # cmake . -DCMAKE_CXX_FLAGS="-static" -DCMAKE_C_FLAGS="-static" -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC_LIB=ON && make
+      #     https://github.com/WebAssembly/binaryen/releases/download/version_113/binaryen-version_113-x86_64-linux.tar.gz
+      #     # cp bin/wasm-opt "$HOME/.local/bin"
+
+      - name: Build Wasm
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        run: |
+          make -C lib stat.wasm
 
       - name: Build and push base
         uses: docker/build-push-action@v4
@@ -67,6 +121,17 @@ jobs:
           push: true
           tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.BASE_TAG }}
           target: base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push gems
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
+          target: gems
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |

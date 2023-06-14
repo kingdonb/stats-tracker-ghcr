@@ -6,6 +6,7 @@ RUN mkdir -p /usr/local/bundle /root/.cargo
 
 FROM $BASE_IMAGE AS base
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN mkdir -p /usr/local/bundle
 RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 ENV BUNDLE_PATH /usr/local/bundle
 ENV GEM_PATH /usr/local/bundle
