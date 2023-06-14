@@ -28,6 +28,18 @@ When you have populated the `gem-cache`, it is configured to be used as a cache
 by default for the `deploy` target, triggered manually (or can be reconfigured
 to build on your preferred `deploy` branch or with any tag-based trigger.)
 
+Typically, you'll only build `deploy` from the cache: `gem-cache`. That's why
+this one is the default.
+
+But in the beginning, when your `ghcr.io` repo is new and caches are all empty,
+you'll need to build a base image at least once. (Then populate the gems layers
+on top of it, finally consolidating the runtime dependencies away from all the
+build artifacts that need not be copied forward into the deploy image...)
+
+For anyone who has taken containers to production, this should be a somewhat
+familiar idea! And along with that, the idea that we shouldn't want to rebuild
+unnecessarily any things which have not changed, we use this multi-stage setup.
+
 The `stat.wasm` is built into the `base` image so it is not rebuilt every time.
 This decision may need to be revisited later, but for now we don't expect our
 `stat.wasm` file to need changes very often, and it requires a lot of setup to
