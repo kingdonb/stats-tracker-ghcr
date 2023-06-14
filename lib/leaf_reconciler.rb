@@ -29,7 +29,7 @@ module Leaf
         database: 'dlcounts',
         username: 'thecount',
         password: ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"],
-        host:     'dl-count-db.turkey.local'
+        host:     ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"]
       )
 
       @opi = KubernetesOperator.new(crdGroup,crdVersion,crdPlural)
