@@ -24,23 +24,27 @@ meant to run these four triggers in order to populate your Git repo:
 * target: `gem-cache` cache: `gems`
 * target: `deploy` cache: `gems`
 
-When you have populated the `gem-cache`, it is configured to be used as a cache
-by default for the `deploy` target, triggered manually (or can be reconfigured
-to build on your preferred `deploy` branch or with any tag-based trigger.)
+When you have populated the `gem-cache`, it is intended to be used as a cache
+by manual selection for the `gems ` target, triggered manually. This way you
+can update the gems without rebuilding everything.
 
-Typically, you'll only build `deploy` from the cache: `gems`. That's why
-this one is the default. You can also build `gems` from `gem-cache`, and vice
-versa. The `gem-cache` is used to make rebuilding `gems` itself faster.
+The `deploy` tag uses `gems` instead, which takes advantage of the native
+ordering of these layers in Docker and in the Dockerfile. Pull any of these and
+pick up where they leave off, for example `make gems-base` pulls a `base` tag.
 
-This works since when you run bundle install with a cache, only the gems that
-changed from the cache are needed.
+Typically, you'll only build `deploy` from the cache: `gems`. That's why this
+one is selected as the default. You can also build `gems` from `gem-cache`, and
+vice versa. The `gem-cache` is used to make rebuilding `gems` itself faster.
+
+When you run bundle install with a cache, only the gems that changed from the
+cache are needed. That is the design, anyway, it doesn't always work like that.
 
 But in the beginning, when your `ghcr.io` repo is new and caches are all empty,
 you'll need to build a base image at least once. (Then populate the gems layers
 on top of it, finally consolidating the runtime dependencies away from all the
 build artifacts that need not be copied forward into the deploy image...)
 
-For anyone who has taken containers to production, this should be a somewhat
+For anyone who has taken containers to production, this should hopefully be a
 familiar idea! And along with that, the idea that we shouldn't want to rebuild
 unnecessarily any things which have not changed, we use this multi-stage setup.
 
