@@ -98,7 +98,7 @@ class Measurement < ApplicationRecord
         ssl_options[:ca_file] = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
       end
       Kubeclient::Client.new(
-        context.api_endpoint+"/apis/example.com",
+        'https://kubernetes.default.svc'+"/apis/example.com",
         "v1alpha1",
         auth_options: auth_options,
         ssl_options:  ssl_options
