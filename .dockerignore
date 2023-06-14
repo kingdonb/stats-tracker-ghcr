@@ -1,0 +1,22 @@
+Dockerfile
+Makefile
+build/
+.env.local
+.git/
+test.wasm
+# lib/stat.wasm
+lib/stat.wasm.raw
+lib/stat/target
+lib/cache
+!lib/cache/.keep
+lib/wabt
+wasm-ex1/
+wasm-ex2/
+wasm-ex3/
+wagi-ruby/
+tmp/
+cache/
+log/
+/.bundle
+/public/assets
+/config/master.key

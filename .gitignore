@@ -1,3 +1,5 @@
+/build/**
+!/build/.keep
 /3_2-wasm32-unknown-wasi-full/
 /wasm-ruby-test/
 /wagi-ruby/
@@ -37,4 +39,3 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
->>>>>>> e02f7ab (scaffold Gemfile + README)
