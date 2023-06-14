@@ -19,7 +19,7 @@ class Measurement < ApplicationRecord
     loop do
       gho = ::GithubOrg.find_by(name: project)
       break if gho.present?
-      sleep 2
+      # sleep 2
     end
 
     t = DateTime.now.in_time_zone.to_time - 5
@@ -32,10 +32,10 @@ class Measurement < ApplicationRecord
 
       c = how_many_are_ready(packs, k8s: k8s)
 
-      # Assume we get here within 5s (no, it's not really safe)
-      break if c == gho.package_count || n >= 9
+      # This is not how you do scheduling but yolo swag
+      break if c == gho.package_count || n >= 26
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
-      sleep 7
+      sleep 4
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{gho.package_count}) #######"
@@ -57,6 +57,9 @@ class Measurement < ApplicationRecord
       puts "########### g (#{g}) leaves left; still collecting #######"
       sleep 3
     end
+
+    # events are left behind if we exit here immediately
+    # sleep 5
 
     puts "########### this is the end of the GithubOrg#run Health Check method #######"
   end
@@ -106,14 +109,14 @@ class Measurement < ApplicationRecord
     else
       last = DateTime.parse(lastUpdate).to_time
       now = DateTime.now.in_time_zone.to_time
-      ready = now - last < 60
+      ready = now - last < 120
     end
   # rescue Kubeclient::ResourceNotFoundError
   #   return false
   end
 
   def self.do_measurement
-    t = DateTime.now.in_time_zone - 64
+    t = DateTime.now.in_time_zone - 124
     ps = Package.where('updated_at > ?', t)
     Package.transaction do
       ps.map do |p|

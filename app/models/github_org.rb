@@ -15,9 +15,9 @@ class GithubOrg < ApplicationRecord
       c = Package.where('updated_at > ?', t).count
 
       # Assume we get here within 5s (no, it's not really safe)
-      break if c == package_count || n >= 3
+      break if c == package_count || n >= 7
       puts "########### fresh packages count: #{c} (expecting #{package_count}) #######"
-      sleep 10
+      sleep 4
       n += 1
     end
     puts "########### final packages count: #{c} (expecting #{package_count}) #######"
