@@ -59,19 +59,13 @@ jobs:
 
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
 
-      - name: Build and push gems
-        uses: docker/build-push-action@v4
-        if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
-          target: gems
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+      - name: Build Wasm
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        run: |
+          make -C lib stat.wasm
 
       - name: Build and push base
         uses: docker/build-push-action@v4
@@ -81,6 +75,19 @@ jobs:
           push: true
           tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.BASE_TAG }}
           target: base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+
+      - name: Build and push gems
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
+          target: gems
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
