@@ -10,6 +10,58 @@ And, to provide a built-up series of examples that can help us try to use Wasm
 
 That's right, Web Assembly is being treated as an end here, not as a means.
 
+## The End
+
+When you adapt this Kubernetes Operator for your own purposes, you will likely
+start by forking this repo. Find `.github/workflows/publish.yaml` which will
+require some changes to point at your fork in order to use it independently.
+
+The GitHub Actions workflow is based on `workflow_dispatch` triggers. You are
+meant to run these four triggers in order to populate your Git repo:
+
+* target: `base` cache: `''` (blank)
+* target: `gems` cache: `base`
+* target: `gem-cache` cache: `gems`
+* target: `deploy` cache: `gems`
+
+When you have populated the `gem-cache`, it is intended to be used as a cache
+by manual selection for the `gems ` target, triggered manually. This way you
+can update the gems without rebuilding everything.
+
+The `deploy` tag uses `gems` instead, which takes advantage of the native
+ordering of these layers in Docker and in the Dockerfile. Pull any of these and
+pick up where they leave off, for example `make gems-base` pulls a `base` tag.
+
+Typically, you'll only build `deploy` from the cache: `gems`. That's why this
+one is selected as the default. You can also build `gems` from `gem-cache`, and
+vice versa. The `gem-cache` is used to make rebuilding `gems` itself faster.
+
+When you run bundle install with a cache, only the gems that changed from the
+cache are needed. That is the design, anyway, it doesn't always work like that.
+
+But in the beginning, when your `ghcr.io` repo is new and caches are all empty,
+you'll need to build a base image at least once. (Then populate the gems layers
+on top of it, finally consolidating the runtime dependencies away from all the
+build artifacts that need not be copied forward into the deploy image...)
+
+For anyone who has taken containers to production, this should hopefully be a
+familiar idea! And along with that, the idea that we shouldn't want to rebuild
+unnecessarily any things which have not changed, we use this multi-stage setup.
+
+The `stat.wasm` is built into the `base` image so it is not rebuilt every time.
+This decision may need to be revisited later, but for now we don't expect our
+`stat.wasm` file to need changes very often, and it requires a lot of setup to
+build, so we think it's better to let it be cached on most builds.
+
+There is also this target, which you can use to start over when the cache has
+gotten away from you:
+
+* target: `clean-cache` cache: `''`
+
+It's not intended that users need to mess with the cache very often, but if you
+find that builds are taking longer than a couple of minutes, you might need to
+take a look at this. "And hopefully, with this PR, caching is finally solved."
+
 ## Why Web Assembly
 
 Our goal is to use Web Assembly for something because we came here to see that.
