@@ -32,6 +32,9 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
