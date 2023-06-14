@@ -1,0 +1,111 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      dockerTarget:
+        description: "Docker Target"
+        required: true
+        type: choice
+        default: "deploy"
+        options:
+          - deploy
+          - gem-cache
+          - clean-cache
+          - gems
+          - base
+      cacheTag:
+        description: "Cache Tag"
+        required: false
+        type: choice
+        default: "gem-cache"
+        options:
+          - latest
+          - gem-cache
+          - gems
+env:
+  BASE_TAG: base
+  GEMS_TAG: gems
+  GEM_CACHE_TAG: gem-cache
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push gems
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
+          target: gems
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+
+      - name: Build and push base
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.BASE_TAG }}
+          target: base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+
+      - name: Build and push gem-cache
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'gem-cache'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.GEM_CACHE_TAG }}
+          target: gem-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+
+      - name: Make clean-cache
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'clean-cache'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.GEM_CACHE_TAG }}
+          target: gem-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # build-args: | ## Empty the cache
+          #   CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+
+      - name: Build and push latest
+        uses: docker/build-push-action@v4
+        if: "${{ github.event.inputs.dockerTarget == 'deploy'}}"
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/kingdonb/stats-tracker-ghcr:latest
+          target: deploy
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
