@@ -27,6 +27,6 @@ COPY --from=gems /usr/local/bundle /usr/local/bundle
 # ENV GEM_PATH /usr/local/bundle
 # ENV GEM_HOME /usr/local/bundle
 COPY . /usr/src/app
-RUN bundle exec make -C lib test
+RUN bundle exec make -C test
 
 CMD foreman start --no-timestamp
