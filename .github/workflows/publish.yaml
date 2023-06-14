@@ -70,7 +70,7 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
-          mkdir -p "${HOME}/.local/bin"
+          mkdir -p "${{ env.HOME }}/.local/bin"
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Restore Cache (binaries) wasm-opt, wasm-strip, stat.wasm
@@ -78,7 +78,7 @@ jobs:
         id: cache-restore
         if: "${{ github.event.inputs.dockerTarget != 'base' }}"
         with:
-          path: "${HOME}/.local/bin"
+          path: "${{ env.HOME }}/.local/bin"
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
       - name: Cache (binaries) wasm-opt, wasm-strip, stat.wasm
@@ -86,7 +86,7 @@ jobs:
         id: cache
         if: "${{ github.event.inputs.dockerTarget == 'base' }}"
         with:
-          path: "${HOME}/.local/bin"
+          path: "${{ env.HOME }}/.local/bin"
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
       - name: Install wabt, binaryen
