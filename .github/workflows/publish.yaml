@@ -69,6 +69,7 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
+          mkdir -p "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Cache (restore) wasm-opt, wasm-strip
@@ -100,7 +101,6 @@ jobs:
           git submodule init
           git submodule update
           cmake . && make
-          mkdir -p "$HOME/.local/bin"
           cp bin/wasm-opt "$HOME/.local/bin"
 
       - name: Build Wasm
