@@ -16,18 +16,20 @@ docker:
 	# docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
 	docker buildx build --push --platform $(PLATFORM) --target deploy -t $(OUTIMAGE):$(TAG) --build-arg CACHE_IMAGE=$(OUTIMAGE):$(GEMS_TAG) .
 
-gems:
-	docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
-	docker pull --platform $(PLATFORM) $(IMAGE):$(GEM_CACHE_TAG)
-	docker buildx build --push --target gems -t $(OUTIMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
-
 gems-base:
 	docker pull --platform $(PLATFORM) $(IMAGE):$(BASE_TAG)
 	docker buildx build --push --target gems -t $(OUTIMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(BASE_TAG) .
 
-gem-cache:
+gems:
 	docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
-	docker buildx build --push --target gem-cache -t $(OUTIMAGE):$(GEM_CACHE_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
+	docker pull --platform $(PLATFORM) $(IMAGE):$(GEM_CACHE_TAG)
+	docker buildx build --push --target gems -t $(OUTIMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(OUTIMAGE):$(GEM_CACHE_TAG) .
+
+gem-cache:
+	# docker pull --platform $(PLATFORM) $(OUTIMAGE):$(GEMS_TAG)
+	docker tag $(OUTIMAGE):$(GEMS_TAG) $(OUTIMAGE):$(GEM_CACHE_TAG)
+	docker push $(OUTIMAGE):$(GEM_CACHE_TAG)
+	# docker buildx build --push --target gem-cache -t $(OUTIMAGE):$(GEM_CACHE_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
 
 clean-cache:
 	docker buildx build --push --target gem-cache -t $(OUTIMAGE):$(GEM_CACHE_TAG) .
