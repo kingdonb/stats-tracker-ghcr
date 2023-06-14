@@ -29,6 +29,7 @@ env:
   BASE_TAG: base
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
+  WABT_VERSION: 1.0.33
 
 jobs:
   release:
@@ -64,26 +65,31 @@ jobs:
         with:
           target: wasm32-wasi
 
-      - name: Install wabt (wasm-strip)
-        uses: kingdonb/setup-wabt@v1.0.4
-        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
-        with:
-          version: 1.0.33
-
-      - name: Add wabt to path (wasm-strip)
+      - name: Add local bin to path (wasm-strip, wasm-opt)
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
-          cp bin/wasm-strip "$HOME/.wabt_1.0.33/bin"
-          echo "$HOME/.wabt_1.0.33/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Cache (restore) wasm-opt
+      - name: Cache (restore) wasm-opt, wasm-strip
         uses: actions/cache@v3
         id: cache
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         with:
           path: "${HOME}/.local/bin"
-          key: ${{ runner.os }}-wasm-opt
+          key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
+
+      - name: Install wabt (wasm-strip)
+        uses: kingdonb/setup-wabt@v1.0.4
+        if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
+        with:
+          version: ${{ env.WABT_VERSION }}
+
+      - name: Add wabt to path (wasm-strip)
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
+        run: |
+          cp "$HOME/.wabt_${{ env.WABT_VERSION }}/bin" bin/wasm-strip "$HOME/.local/bin"
 
       - name: Build Binaryen (wasm-opt)
         shell: bash
@@ -96,7 +102,6 @@ jobs:
           cmake . && make
           mkdir -p "$HOME/.local/bin"
           cp bin/wasm-opt "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build Wasm
         shell: bash
