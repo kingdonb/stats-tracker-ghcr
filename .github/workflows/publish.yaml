@@ -64,19 +64,26 @@ jobs:
         with:
           target: wasm32-wasi
 
-      - name: Cache wasm-opt
+      - name: Install wabt (wasm-strip)
+        uses: kingdonb/setup-wabt@v1.0.4
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        with:
+          version: 1.0.33
+
+      - name: Add wabt to path (wasm-strip)
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        run: |
+          cp bin/wasm-strip "$HOME/.wabt_1.0.33/bin"
+          echo "$HOME/.wabt_1.0.33/bin" >> $GITHUB_PATH
+
+      - name: Cache (restore) wasm-opt
         uses: actions/cache@v3
         id: cache
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         with:
           path: "${HOME}/.local/bin"
           key: ${{ runner.os }}-wasm-opt
-
-      - name: Install wabt (wasm-strip)
-        uses: kingdonb/setup-wabt@v1.0.4
-        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
-        with:
-          version: 1.0.33
 
       - name: Build Binaryen (wasm-opt)
         shell: bash
