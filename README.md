@@ -27,7 +27,7 @@ be easy. Such is the way of the modern developer! Come with me, on a journey...
 
 Todo:
 
-* [ ] Collect the data (it should go somewhere permanent)
+* [X] Collect the data (it should go somewhere permanent)
 * [ ] Update the data store with new data on some interval
 * [ ] Build a way to represent the collected data visually
 * [ ] Show failed collections on the visual representation too

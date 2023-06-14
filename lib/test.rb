@@ -38,7 +38,9 @@ def get_current_stat_with_time(project, repo, image)
 end
 
 def http_client_wrapped(http_client, project, repo, image)
-  http_client.call("https://github.com/#{project}/#{repo}/pkgs/container/#{image}")
+  url = "https://github.com/#{project}/#{repo}/pkgs/container/#{image}"
+  # binding.pry
+  http_client.call(url)
 end
 
 def http_client_read
@@ -47,8 +49,8 @@ end
 
 # This will be the context of our (leaf) operator reconciler
 project = 'fluxcd'
-repo = 'flagger'
-image = 'flagger'
+repo = 'source-controller'
+image = 'source-controller'
 
 puts get_current_stat_with_time(project, repo, image)
 # Each interval, the reconciler will call a function
