@@ -1,4 +1,5 @@
-.PHONY: foreman lib clean test all docker base gems gem-cache
+.PHONY: foreman lib clean test all docker
+.PHONY: base gems gem-cache clean-cache
 
 IMAGE:=kingdonb/opernator
 TAG:=latest
@@ -9,17 +10,19 @@ GEM_CACHE_TAG:=gem-cache
 all: clean lib test
 
 docker:
-	docker buildx build --push --target deploy -t $(IMAGE):$(TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
+	docker buildx build --push --target deploy -t $(IMAGE):$(TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
 
 gems:
 	docker buildx build --push --target gems -t $(IMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
 
-# Based on: https://blog.saeloun.com/2022/07/12/docker-cache/
 gem-cache:
 	docker buildx build --push --target gem-cache -t $(IMAGE):$(GEM_CACHE_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
 
+clean-cache:
+	docker buildx build --push --target gem-cache -t $(IMAGE):$(GEM_CACHE_TAG) .
+
 base: lib
-	docker buildx build --push --target base -t $(IMAGE):$(BASE_TAG) . #  BASE_IMAGE=$(IMAGE):$(BASE_TAG) .
+	docker buildx build --push --target base -t $(IMAGE):$(BASE_TAG) .
 
 foreman:
 	date && time foreman start --no-timestamp

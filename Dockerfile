@@ -28,7 +28,7 @@ RUN bash -i -c 'bundle install'
 
 FROM base AS deploy
 COPY --from=gems /usr/local/bundle /usr/local/bundle
-# RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
+RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 # ENV BUNDLE_PATH /usr/local/bundle
 # ENV GEM_PATH /usr/local/bundle
 # ENV GEM_HOME /usr/local/bundle
