@@ -70,14 +70,14 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
-          mkdir -p "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          mkdir -p "${HOME}/.local/bin"
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Restore Cache (binaries) wasm-opt, wasm-strip, stat.wasm
         uses: actions/cache/restore@v3
         id: cache-restore
-        with:
         if: "${{ github.event.inputs.dockerTarget != 'base' }}"
+        with:
           path: "${HOME}/.local/bin"
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
