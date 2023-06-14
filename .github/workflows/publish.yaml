@@ -24,6 +24,7 @@ on:
           - latest
           - gem-cache
           - gems
+          - base
 env:
   BASE_TAG: base
   GEMS_TAG: gems
