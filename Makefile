@@ -1,28 +1,35 @@
 .PHONY: foreman lib clean test all docker
 .PHONY: base gems gem-cache clean-cache
 
-IMAGE:=kingdonb/opernator
+IMAGE:=ghcr.io/kingdonb/stats-tracker-ghcr
 TAG:=latest
 BASE_TAG:=base
 GEMS_TAG:=gems
 GEM_CACHE_TAG:=gem-cache
+PLATFORM:=linux/amd64
+OUTIMAGE:=kingdonb/opernator
 
 all: clean lib test
 
 docker:
-	docker buildx build --push --target deploy -t $(IMAGE):$(TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
+	docker pull --platform $(PLATFORM) $(IMAGE):$(BASE_TAG)
+	docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
+	docker buildx build --push --platform $(PLATFORM) --target deploy -t $(OUTIMAGE):$(TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
 
 gems:
-	docker buildx build --push --target gems -t $(IMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
+	docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
+	docker pull --platform $(PLATFORM) $(IMAGE):$(GEM_CACHE_TAG)
+	docker buildx build --push --target gems -t $(OUTIMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
 
 gem-cache:
-	docker buildx build --push --target gem-cache -t $(IMAGE):$(GEM_CACHE_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
+	docker pull --platform $(PLATFORM) $(IMAGE):$(GEMS_TAG)
+	docker buildx build --push --target gem-cache -t $(OUTIMAGE):$(GEM_CACHE_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEMS_TAG) .
 
 clean-cache:
-	docker buildx build --push --target gem-cache -t $(IMAGE):$(GEM_CACHE_TAG) .
+	docker buildx build --push --target gem-cache -t $(OUTIMAGE):$(GEM_CACHE_TAG) .
 
 base: lib
-	docker buildx build --push --target base -t $(IMAGE):$(BASE_TAG) .
+	docker buildx build --push --target base -t $(OUTIMAGE):$(BASE_TAG) .
 
 foreman:
 	date && time foreman start --no-timestamp
