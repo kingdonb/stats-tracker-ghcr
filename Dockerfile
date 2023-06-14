@@ -3,11 +3,12 @@ ARG CACHE_IMAGE=${BASE_IMAGE}
 
 FROM ${CACHE_IMAGE} AS gem-cache
 RUN mkdir -p /usr/local/bundle /root/.cargo
+RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 
 FROM $BASE_IMAGE AS base
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN mkdir -p /usr/local/bundle
-RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
+# RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 ENV BUNDLE_PATH /usr/local/bundle
 ENV GEM_PATH /usr/local/bundle
 ENV GEM_HOME /usr/local/bundle
@@ -29,7 +30,7 @@ RUN bash -i -c 'bundle install'
 
 FROM base AS deploy
 COPY --from=gems /usr/local/bundle /usr/local/bundle
-RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
+# RUN echo "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 # ENV BUNDLE_PATH /usr/local/bundle
 # ENV GEM_PATH /usr/local/bundle
 # ENV GEM_HOME /usr/local/bundle
