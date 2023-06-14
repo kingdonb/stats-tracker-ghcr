@@ -12,7 +12,7 @@ docker:
 	docker buildx build --push --target deploy -t $(IMAGE):$(TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
 
 gems:
-	docker buildx build --push --target gems -t $(IMAGE):$(GEMS_TAG) .
+	docker buildx build --push --target gems -t $(IMAGE):$(GEMS_TAG) --build-arg CACHE_IMAGE=$(IMAGE):$(GEM_CACHE_TAG) .
 
 # Based on: https://blog.saeloun.com/2022/07/12/docker-cache/
 gem-cache:
