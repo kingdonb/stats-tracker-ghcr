@@ -73,17 +73,25 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      # - name: Cache (restore) wasm-opt, wasm-strip
-      #   uses: actions/cache@v3
-      #   id: cache
-      #   if: "${{ github.event.inputs.dockerTarget == 'base'}}"
-      #   with:
-      #     path: "${HOME}/.local/bin"
-      #     key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
+      - name: Restore Cache (binaries) wasm-opt, wasm-strip, stat.wasm
+        uses: actions/cache/restore@v3
+        id: cache-restore
+        with:
+        if: "${{ github.event.inputs.dockerTarget != 'base' }}"
+          path: "${HOME}/.local/bin"
+          key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
+
+      - name: Cache (binaries) wasm-opt, wasm-strip, stat.wasm
+        uses: actions/cache@v3
+        id: cache
+        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        with:
+          path: "${HOME}/.local/bin"
+          key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
       - name: Install wabt, binaryen
         uses: kingdonb/setup-wabt@v1.0.5
-        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true' }}"
         with:
           version: ${{ env.WABT_VERSION }}
           version2: ${{ env.BINARYEN_VERSION }}
@@ -112,6 +120,13 @@ jobs:
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
           make -C lib stat.wasm
+          cp lib/stat.wasm "$HOME/.local/bin"
+
+      - name: Restore Wasm
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget != 'base'}}"
+        run: |
+          cp "$HOME/.local/bin/stat.wasm" lib/stat.wasm
 
       - name: Build and push base
         uses: docker/build-push-action@v4
