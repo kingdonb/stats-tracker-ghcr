@@ -77,8 +77,6 @@ jobs:
           target: base
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
 
       - name: Build and push gems
         uses: docker/build-push-action@v4
