@@ -84,8 +84,8 @@ class Measurement < ApplicationRecord
       config = Kubeclient::Config.read(ENV['KUBECONFIG'] || "#{ENV['HOME']}/.kube/config")
       context = config.context
       Kubeclient::Client.new(
-        context.api_endpoint,
-        'v1',
+        context.api_endpoint+"/apis/example.com",
+        "v1alpha1",
         ssl_options: context.ssl_options,
         auth_options: context.auth_options
       )
@@ -98,8 +98,8 @@ class Measurement < ApplicationRecord
         ssl_options[:ca_file] = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
       end
       Kubeclient::Client.new(
-        'https://kubernetes.default.svc',
-        'v1',
+        context.api_endpoint+"/apis/example.com",
+        "v1alpha1",
         auth_options: auth_options,
         ssl_options:  ssl_options
       )
