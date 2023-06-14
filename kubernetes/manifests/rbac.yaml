@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stats-tracker-ghcr
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: stats-tracker-ghcr
+rules:
+  - apiGroups: ["example.com"]
+    resources: ["projects", "leaves"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: stats-tracker-ghcr
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: stats-tracker-ghcr
+subjects:
+  - kind: ServiceAccount
+    name: stats-tracker-ghcr
