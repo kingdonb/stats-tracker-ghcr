@@ -90,7 +90,7 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
         run: |
-          cp "$HOME/.wabt_${{ env.WABT_VERSION }}/bin" bin/wasm-strip "$HOME/.local/bin"
+          cp "$HOME/.wabt_${{ env.WABT_VERSION }}/bin/wasm-strip" "$HOME/.local/bin"
 
       - name: Build Binaryen (wasm-opt)
         shell: bash
