@@ -72,6 +72,12 @@ jobs:
           path: "${HOME}/.local/bin"
           key: ${{ runner.os }}-wasm-opt
 
+      - name: Install wabt (wasm-strip)
+        uses: chiefbiiko/setup-wabt@v1.0.0
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        with:
+          version: 1.0.33
+
       - name: Build Binaryen (wasm-opt)
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
@@ -84,11 +90,6 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           cp bin/wasm-opt "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install wabt (wasm-strip)
-        uses: chiefbiiko/setup-wabt@v1.0.0
-        with:
-          version: 1.0.33
 
       - name: Build Wasm
         shell: bash
