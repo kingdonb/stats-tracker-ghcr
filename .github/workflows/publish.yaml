@@ -97,9 +97,9 @@ jobs:
           version: ${{ env.WABT_VERSION }}
           version2: ${{ env.BINARYEN_VERSION }}
 
-      - name: Add to path (wasm-strip, wasm-opt)
+      - name: Copy to path (wasm-strip, wasm-opt)
         shell: bash
-        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true' }}"
         run: |
           cp "${HOME}/.wabt_${{ env.WABT_VERSION }}/bin/wasm-strip" "${HOME}/.local/bin"
           cp "${HOME}/.binaryen_${{ env.BINARYEN_VERSION }}/bin/wasm-opt" "${HOME}/.local/bin"
@@ -129,6 +129,12 @@ jobs:
         run: |
           cp "${HOME}/.local/bin/stat.wasm" lib/stat.wasm
 
+      - name: Restore Base
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
+        run: |
+          docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
+
       - name: Build and push base
         uses: docker/build-push-action@v4
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
@@ -140,13 +146,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Restore Base
+      - name: Restore Base (for deploy/gems)
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
         run: |
           docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
 
-      - name: Restore Gem Cache
+      - name: Restore Gem Cache (for deploy/gems)
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
         run: |
@@ -158,7 +164,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_TAG }}:gems
+          tags: ${{ env.IMAGE_TAG }}:${{ env.GEMS_TAG }}
           target: gems
           cache-from: type=gha
           cache-to: type=gha,mode=max
