@@ -63,6 +63,27 @@ jobs:
         with:
           target: wasm32-wasi
 
+      - name: Cache wasm-opt
+        uses: actions/cache@v3
+        id: cache
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
+        with:
+          path: "${HOME}/.local/bin"
+          key: ${{ runner.os }}-wasm-opt
+
+      - name: Build Binaryen (wasm-opt)
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true'}}"
+        run: |
+          git clone https://github.com/WebAssembly/binaryen/
+          pushd binaryen
+          git submodule init
+          git submodule update
+          cmake . && make
+          mkdir -p "$HOME/.local/bin"
+          cp bin/wasm-opt "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
       - name: Build Wasm
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
