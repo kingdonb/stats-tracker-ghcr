@@ -10,6 +10,38 @@ And, to provide a built-up series of examples that can help us try to use Wasm
 
 That's right, Web Assembly is being treated as an end here, not as a means.
 
+## The End
+
+When you adapt this Kubernetes Operator for your own purposes, you will likely
+start by forking this repo. Find `.github/workflows/publish.yaml` which will
+require some changes to point at your fork in order to use it independently.
+
+The GitHub Actions workflow is based on `workflow_dispatch` triggers. You are
+meant to run these four triggers in order to populate your Git repo:
+
+* target: `base` cache: `''` (blank)
+* target: `gems` cache: `base`
+* target: `gem-cache` cache: `gems`
+* target: `deploy` cache: `gem-cache`
+
+When you have populated the `gem-cache`, it is configured to be used as a cache
+by default for the `deploy` target, triggered manually (or can be reconfigured
+to build on your preferred `deploy` branch or with any tag-based trigger.)
+
+The `stat.wasm` is built into the `base` image so it is not rebuilt every time.
+This decision may need to be revisited later, but for now we don't expect our
+`stat.wasm` file to need changes very often, and it requires a lot of setup to
+build, so we think it's better to let it be cached on most builds.
+
+There is also this target, which you can use to start over when the cache has
+gotten away from you:
+
+* target: `clean-cache` cache: `''`
+
+It's not intended that users need to mess with the cache very often, but if you
+find that builds are taking longer than a couple of minutes, you might need to
+take a look at this. "And hopefully, with this PR, caching is finally solved."
+
 ## Why Web Assembly
 
 Our goal is to use Web Assembly for something because we came here to see that.
