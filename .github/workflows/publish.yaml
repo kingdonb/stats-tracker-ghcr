@@ -140,6 +140,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Restore Base
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
+        run: |
+          docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
+
+      - name: Restore Gem Cache
+        shell: bash
+        if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
+        run: |
+          docker pull ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
+
       - name: Build and push gems
         uses: docker/build-push-action@v4
         if: "${{ github.event.inputs.dockerTarget == 'gems'}}"
