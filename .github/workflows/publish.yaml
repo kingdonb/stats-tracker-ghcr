@@ -18,18 +18,15 @@ on:
         description: "Cache Tag"
         required: false
         type: choice
-        default: "ghcr.io/kingdonb/stats-tracker-ghcr:gem-cache"
+        default: "gem-cache"
         options:
           - ''
-          - ghcr.io/kingdonb/stats-tracker-ghcr:base
-          - ghcr.io/kingdonb/stats-tracker-ghcr:latest
-          - ghcr.io/kingdonb/stats-tracker-ghcr:gem-cache
-          - ghcr.io/kingdonb/stats-tracker-ghcr:gems
           - base
           - latest
           - gem-cache
           - gems
 env:
+  IMAGE_TAG: ghcr.io/kingdonb/stats-tracker-ghcr
   BASE_TAG: base
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
@@ -138,7 +135,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.BASE_TAG }}
+          tags: ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
           target: base
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -149,12 +146,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:gems
+          tags: ${{ env.IMAGE_TAG }}:gems
           target: gems
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+            CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
 
       - name: Build and push gem-cache
         uses: docker/build-push-action@v4
@@ -162,12 +159,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.GEM_CACHE_TAG }}
+          tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
           target: gem-cache
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+            CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
 
       - name: Make clean-cache
         uses: docker/build-push-action@v4
@@ -175,12 +172,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:${{ env.GEM_CACHE_TAG }}
+          tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
           target: gem-cache
           cache-from: type=gha
           cache-to: type=gha,mode=max
           # build-args: | ## Empty the cache
-          #   CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+          #   CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
 
       - name: Build and push latest
         uses: docker/build-push-action@v4
@@ -188,9 +185,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/kingdonb/stats-tracker-ghcr:latest
+          tags: ${{ env.IMAGE_TAG }}:latest
           target: deploy
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            CACHE_IMAGE=ghcr.io/kingdonb/stats-tracker-ghcr:${{ github.event.inputs.cacheTag }}
+            CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
