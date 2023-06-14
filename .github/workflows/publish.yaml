@@ -18,13 +18,17 @@ on:
         description: "Cache Tag"
         required: false
         type: choice
-        default: "gem-cache"
+        default: "ghcr.io/kingdonb/stats-tracker-ghcr:gem-cache"
         options:
           - ''
+          - ghcr.io/kingdonb/stats-tracker-ghcr:base
+          - ghcr.io/kingdonb/stats-tracker-ghcr:latest
+          - ghcr.io/kingdonb/stats-tracker-ghcr:gem-cache
+          - ghcr.io/kingdonb/stats-tracker-ghcr:gems
+          - base
           - latest
           - gem-cache
           - gems
-          - base
 env:
   BASE_TAG: base
   GEMS_TAG: gems
