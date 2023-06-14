@@ -73,7 +73,7 @@ jobs:
           key: ${{ runner.os }}-wasm-opt
 
       - name: Install wabt (wasm-strip)
-        uses: kingdonb/setup-wabt@v1.0.3
+        uses: kingdonb/setup-wabt@v1.0.4
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         with:
           version: 1.0.33
