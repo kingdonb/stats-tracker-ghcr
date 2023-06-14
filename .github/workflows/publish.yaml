@@ -20,6 +20,7 @@ on:
         type: choice
         default: "gem-cache"
         options:
+          - ''
           - latest
           - gem-cache
           - gems
