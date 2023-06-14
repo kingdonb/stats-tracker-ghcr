@@ -70,7 +70,7 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
-          mkdir -p "${{ env.HOME }}/.local/bin"
+          mkdir -p "${HOME}/.local/bin"
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Restore Cache (binaries) wasm-opt, wasm-strip, stat.wasm
@@ -78,7 +78,7 @@ jobs:
         id: cache-restore
         if: "${{ github.event.inputs.dockerTarget != 'base' }}"
         with:
-          path: "${{ env.HOME }}/.local/bin"
+          path: "/home/runner/.local/bin"
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
       - name: Cache (binaries) wasm-opt, wasm-strip, stat.wasm
@@ -86,7 +86,7 @@ jobs:
         id: cache
         if: "${{ github.event.inputs.dockerTarget == 'base' }}"
         with:
-          path: "${{ env.HOME }}/.local/bin"
+          path: "/home/runner/.local/bin"
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}
 
       - name: Install wabt, binaryen
@@ -100,8 +100,8 @@ jobs:
         shell: bash
         if: "${{ github.event.inputs.dockerTarget == 'base' }}"
         run: |
-          cp "$HOME/.wabt_${{ env.WABT_VERSION }}/bin/wasm-strip" "$HOME/.local/bin"
-          cp "$HOME/.binaryen_${{ env.BINARYEN_VERSION }}/bin/wasm-opt" "$HOME/.local/bin"
+          cp "${HOME}/.wabt_${{ env.WABT_VERSION }}/bin/wasm-strip" "${HOME}/.local/bin"
+          cp "${HOME}/.binaryen_${{ env.BINARYEN_VERSION }}/bin/wasm-opt" "${HOME}/.local/bin"
 
       # - name: Build Binaryen (wasm-opt)
       #   shell: bash
@@ -120,13 +120,13 @@ jobs:
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         run: |
           make -C lib stat.wasm
-          cp lib/stat.wasm "$HOME/.local/bin"
+          cp lib/stat.wasm "${HOME}/.local/bin"
 
       - name: Restore Wasm
         shell: bash
         if: "${{ github.event.inputs.dockerTarget != 'base'}}"
         run: |
-          cp "$HOME/.local/bin/stat.wasm" lib/stat.wasm
+          cp "${HOME}/.local/bin/stat.wasm" lib/stat.wasm
 
       - name: Build and push base
         uses: docker/build-push-action@v4
