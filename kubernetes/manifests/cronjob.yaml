@@ -4,6 +4,7 @@ metadata:
   name: stats-tracker-ghcr
 spec:
   schedule: "*/4 * * * *"
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       template:

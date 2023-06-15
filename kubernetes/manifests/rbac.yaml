@@ -4,13 +4,39 @@ metadata:
   name: stats-tracker-ghcr
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: stats-tracker-ghcr
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: stats-tracker-operator
+subjects:
+  - kind: ServiceAccount
+    name: stats-tracker-ghcr
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: stats-tracker-operator
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: stats-tracker-ghcr
 rules:
   - apiGroups: ["example.com"]
     resources: ["projects", "leaves"]
-    verbs: ["get", "create", "patch"]
+    verbs: ["get", "create", "update", "patch", "list", "watch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
