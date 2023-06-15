@@ -28,6 +28,21 @@ rules:
   verbs:
   - get
   - list
+
 - apiGroups: ["example.com"]
   resources: ["projects", "leaves"]
   verbs: ["*"]
+
+- apiGroups: ["example.com"]
+  resources: ["projects/status", "leaves/status"]
+  verbs: ["*"]
+
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - list
+  - delete
