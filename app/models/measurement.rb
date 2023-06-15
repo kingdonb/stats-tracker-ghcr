@@ -133,6 +133,8 @@ class Measurement < ApplicationRecord
       now = DateTime.now.in_time_zone.to_time
       ready = now - last < 120
     end
+  rescue Date::Error
+    return false
   # rescue Kubeclient::ResourceNotFoundError
   #   return false
   end
