@@ -61,6 +61,7 @@ class Measurement < ApplicationRecord
       if waits < 1
         puts "########### issing another delete, to die gracefully #######"
         k8s.delete_project('fluxcd', 'default', {})
+        break
       end
     end
 
