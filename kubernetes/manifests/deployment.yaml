@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stats-viewer
+  name: stats-viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats-viewer
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: stats-viewer
+    spec:
+      serviceAccountName: "stats-tracker-ghcr"
+      containers:
+      - image: ghcr.io/kingdonb/stats-tracker-ghcr:latest
+        name: statsview
+        command: ["bundle"]
+        args: ["exec", "rails", "server", "-b", "0.0.0.0"]
+        envFrom:
+        - secretRef:
+            name: stats-tracker
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - name: http
+            containerPort: 3000
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http

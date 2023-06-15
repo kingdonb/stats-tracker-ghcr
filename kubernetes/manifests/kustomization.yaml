@@ -4,3 +4,6 @@ namespace: default
 resources:
   - rbac.yaml
   - cronjob.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
