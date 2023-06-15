@@ -53,9 +53,15 @@ class Measurement < ApplicationRecord
       # FIXME: Leave a mess (someone should debug this mess)
     end
 
+    waits = 20
     while (g = k8s.get_leaves(namespace: 'default').count) > 0
       puts "########### g (#{g}) leaves left; still collecting #######"
       sleep 3
+      waits = waits - 1
+      if waits < 1
+        puts "########### issing another delete, to die gracefully #######"
+        k8s.delete_project('fluxcd', 'default', {})
+      end
     end
 
     # events are left behind if we exit here immediately
