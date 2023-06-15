@@ -33,7 +33,7 @@ class Measurement < ApplicationRecord
       c = how_many_are_ready(packs, k8s: k8s)
 
       # This is not how you do scheduling but yolo swag
-      break if c == gho.package_count || n >= 26
+      break if c == gho.package_count || n >= 15
       puts "########### fresh packages count: #{c} (expecting #{gho.package_count}) #######"
       sleep 4
       n += 1
@@ -53,7 +53,7 @@ class Measurement < ApplicationRecord
       # FIXME: Leave a mess (someone should debug this mess)
     end
 
-    waits = 20
+    waits = 10
     while (g = k8s.get_leaves(namespace: 'default').count) > 0
       puts "########### g (#{g}) leaves left; still collecting #######"
       sleep 3
