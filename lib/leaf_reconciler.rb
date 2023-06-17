@@ -40,6 +40,16 @@ module Leaf
     end
 
     def run
+      k8s = @opi.instance_variable_get("@k8sclient")
+
+      # it's not unheard of that some leaves are already in the cluster on startup
+      leaves = k8s.get_leaves(namespace: 'default')
+      # it might not be too late for these leaves, try calling upsert on them again
+      leaves.each do |leaf|
+        upsert(leaf)
+      end
+
+      # the callback register for upsert and delete
       @opi.run
     end
 
