@@ -18,7 +18,6 @@ module Leaf
       crdGroup = "example.com"
       crdVersion = "v1alpha1"
       crdPlural = "leaves"
-      # @shard = shard
 
       # Load DATABASE_PASSWORD into env
       Dotenv.load '.env.local'
@@ -46,7 +45,12 @@ module Leaf
       leaves = k8s.get_leaves(namespace: 'default')
       # it might not be too late for these leaves, try calling upsert on them again
       leaves.each do |leaf|
-        upsert(leaf)
+        resp = upsert(leaf)
+        # update status
+        if resp.is_a?(Hash) && resp[:status]
+          # binding.pry
+          k8s.patch_entity('leaves', leaf[:metadata][:name]+"/status", {status: resp[:status]}, 'merge-patch', 'default')
+        end
       end
 
       # the callback register for upsert and delete
@@ -54,20 +58,6 @@ module Leaf
     end
 
     def upsert(obj)
-      # ## sharding
-      # #
-
-      # shard_key = obj[:metadata][:uid].hash
-
-      # unless (shard_key % 4) == (@shard - 1)
-      #   return {:status => {}}
-      # end
-
-      # # there are 4 shards
-      # # with shard keys: 1, 2, 3, 4
-      # #
-      # ## sharding
-
       packageName = obj["spec"]["packageName"]
       name = obj["metadata"]["name"]
       @logger.info("upsert called for {packageName: #{packageName}}")
@@ -82,6 +72,7 @@ module Leaf
       patch = {:status => {}}
 
     if is_under_deletion?(obj)
+      @logger.info("(is under deletion) {packageName: #{packageName}}")
       generation = obj["metadata"]["generation"]
       patch = {:status => {
         :conditions => [{
@@ -95,11 +86,40 @@ module Leaf
       }}
     else
       if is_already_ready?(obj)
+        @logger.info("leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
         # @eventHelper.add(obj,"leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
       else
         if is_already_reconciling?(obj)
-          # no need to set Reconciling condition, it's already set
+          @logger.info("is marked as reconciling from a previous call to upsert leaf/#{name}")
+
+          rec = fetch_condition_by_type(obj: obj, cond_type: 'Reconciling')
+          how_long = Time.now - Time.parse(rec.lastTransitionTime)
+          stalled = how_long > 5 # seconds
+
+          if stalled
+            @logger.info("stalled, rescheduling leaf/#{name}")
+            patch = {:status => {
+              :conditions => [{
+                :lastTransitionTime => DateTime.now,
+                :message => "Stalled for #{how_long}s",
+                :observedGeneration => generation,
+                :reason => "RetryNeeded",
+                :status => "True",
+                :type => "Stalled"
+              }, {
+                :lastTransitionTime => DateTime.now,
+                :message => "Stalled",
+                :observedGeneration => generation,
+                :reason => "Rescheduled",
+                :status => "False",
+                :type => "Ready"
+              }
+              ]
+            }}
+          end
+
         else
+          @logger.info("doing the thing (scheduling a fiber and patching NewGeneration into the status) leaf/#{name}")
           generation = obj["metadata"]["generation"]
 
           # We'll be reconciling in a fiber, and upsert may get called again
@@ -124,14 +144,17 @@ module Leaf
 
           # When the fiber gets back, it will store its results in the cache
           Fiber.schedule do
+            @logger.info("the fiber is running leaf/#{name}")
             watcher = k8s.watch_leaves(namespace: 'default', name: name)
             watcher.each do |notice|
               # don't act on ADDED or DELETED notices
               if notice.type == "MODIFIED"
+                @logger.info("received MODIFIED notice leaf/#{name}")
                 new_obj = notice.object
 
                 # don't act unless Reconciling condition is set
                 if is_finalizer_set?(new_obj) && is_already_reconciling?(new_obj)
+                  @logger.info("it's time to call reconcile_async leaf/#{name}")
                   uid = obj[:metadata][:uid]
 
                   # call reconcile_async when "Reconciling" is called for
@@ -146,6 +169,7 @@ module Leaf
                     end
                   end
 
+                  @logger.info("ending watch of leaf/#{name}")
                   # we are done here, the watcher can be terminated
                   watcher.finish
                 end # block where: finalizer_set && already_reconciling
@@ -161,20 +185,6 @@ module Leaf
     end
 
     def delete(obj)
-      # ## sharding
-      # #
-
-      # shard_key = obj[:metadata][:uid].hash
-
-      # unless (shard_key % 4) == (@shard - 1)
-      #   return
-      # end
-
-      # # there are 4 shards
-      # # with shard keys: 1, 2, 3, 4
-      # #
-      # ## sharding
-
       @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
       k8s = @opi.instance_variable_get("@k8sclient")
       store = @opi.instance_variable_get("@store")
@@ -221,7 +231,9 @@ module Leaf
     def is_already_ready?(obj)
       ready = fetch_condition_by_type(
         obj: obj, cond_type: 'Ready')
-      return is_current?(obj: obj, cond: ready)
+      return is_current?(obj: obj, cond: ready) &&
+        is_true?(obj: obj, cond: ready) &&
+        is_fresh?(obj: obj, cond: ready, stale: 10)
     end
 
     def is_already_reconciling?(obj)
@@ -247,15 +259,32 @@ module Leaf
       con&.first
     end
 
+    # def last_transition_before_duration?(cond:, duration:)
+    #   last_transition = cond.dig(:lastTransitionTime)
+    # end
+
+    def is_true?(obj:, cond:)
+      status = cond&.dig(:status)
+      status == "True"
+    end
+
+    def is_fresh?(obj:, cond:, stale:)
+      time = cond&.dig(:lastTransitionTime)
+      how_long = Time.now - Time.parse(time)
+      too_long = how_long > stale
+
+      !too_long
+    end
+
     def is_current?(obj:, cond:)
       metadata = obj["metadata"]
       generation = metadata&.dig(:generation)
       observed = cond&.dig(:observedGeneration)
-      # binding.pry
       generation == observed
     end
 
     def reconcile_async(obj:, name:, project:, repo:, image:, k8s:)
+      @logger.info("in reconcile_async leaf/#{name}")
       r = get_current_stat_with_time(project, repo, image)
 
       # @eventHelper.add(obj,"wasmer returned current download count in leaf/#{name}")
@@ -282,6 +311,8 @@ module Leaf
 
       repo_obj.run(k8s:, last_update: t.in_time_zone.to_time)
       package_obj.run(k8s:, last_update: t.in_time_zone.to_time)
+
+      @logger.info("reconcile_async ran database activities leaf/#{name}")
 
       name = obj["metadata"]["name"]
       generation = obj["metadata"]["generation"]
