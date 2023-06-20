@@ -73,17 +73,7 @@ module Leaf
 
     if is_under_deletion?(obj)
       @logger.info("(is under deletion) {packageName: #{packageName}}")
-      generation = obj["metadata"]["generation"]
-      patch = {:status => {
-        :conditions => [{
-          :lastTransitionTime => DateTime.now,
-          :message => "",
-          :observedGeneration => generation,
-          :reason => "Terminating",
-          :status => "False",
-          :type => "Ready"
-        }]
-      }}
+      patch = handle_deletion(obj)
     else
       if is_already_ready?(obj)
         @logger.info("leaf upsert was called, but short-circuiting (it's already ready) leaf/#{name}")
@@ -92,34 +82,20 @@ module Leaf
         if is_already_reconciling?(obj)
           @logger.info("is marked as reconciling from a previous call to upsert leaf/#{name}")
 
-          rec = fetch_condition_by_type(obj: obj, cond_type: 'Reconciling')
-          how_long = Time.now - Time.parse(rec.lastTransitionTime)
-          stalled = how_long > 5 # seconds
-
-          if stalled
-            @logger.info("stalled, rescheduling leaf/#{name}")
-            patch = {:status => {
-              :conditions => [{
-                :lastTransitionTime => DateTime.now,
-                :message => "Stalled for #{how_long}s",
-                :observedGeneration => generation,
-                :reason => "RetryNeeded",
-                :status => "True",
-                :type => "Stalled"
-              }, {
-                :lastTransitionTime => DateTime.now,
-                :message => "Stalled",
-                :observedGeneration => generation,
-                :reason => "Rescheduled",
-                :status => "False",
-                :type => "Ready"
-              }
-              ]
-            }}
-          end
+          patch = handle_reconciling(obj)
 
         else
           @logger.info("doing the thing (scheduling a fiber and patching NewGeneration into the status) leaf/#{name}")
+          patch = reconcile(obj)
+        end # block where: set initial status condition, unless already_reconciling
+      end # block where: short circuit when already_ready
+    end # block where: unless is_under_deletion
+
+      # Return a condition patch, or an empty status hash for final merge
+      return patch
+    end
+
+    def reconcile(obj)
           generation = obj["metadata"]["generation"]
 
           # We'll be reconciling in a fiber, and upsert may get called again
@@ -176,12 +152,49 @@ module Leaf
               end # block where: only MODIFIED
             end # block where: watcher.each leaf in default namespace
           end # Fiber.schedule
-        end # block where: set initial status condition, unless already_reconciling
-      end # block where: short circuit when already_ready
-    end # block where: unless is_under_deletion
+            return patch
+    end
 
-      # Return a condition patch, or an empty status hash for final merge
-      return patch
+    def handle_reconciling(obj)
+          rec = fetch_condition_by_type(obj: obj, cond_type: 'Reconciling')
+          how_long = Time.now - Time.parse(rec.lastTransitionTime)
+          stalled = how_long > 5 # seconds
+
+          if stalled
+            @logger.info("stalled, rescheduling leaf/#{name}")
+            patch = {:status => {
+              :conditions => [{
+                :lastTransitionTime => DateTime.now,
+                :message => "Stalled for #{how_long}s",
+                :observedGeneration => generation,
+                :reason => "RetryNeeded",
+                :status => "True",
+                :type => "Stalled"
+              }, {
+                :lastTransitionTime => DateTime.now,
+                :message => "Stalled",
+                :observedGeneration => generation,
+                :reason => "Rescheduled",
+                :status => "False",
+                :type => "Ready"
+              }
+              ]
+            }}
+          end
+    end
+
+    def handle_deletion(obj)
+      generation = obj["metadata"]["generation"]
+      patch = {:status => {
+        :conditions => [{
+          :lastTransitionTime => DateTime.now,
+          :message => "",
+          :observedGeneration => generation,
+          :reason => "Terminating",
+          :status => "False",
+          :type => "Ready"
+        }]
+      }}
     end
 
     def delete(obj)
