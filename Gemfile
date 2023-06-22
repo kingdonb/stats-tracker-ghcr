@@ -30,7 +30,7 @@ gem "rails", "~> 7.0.5"
 
 group :development, :test do
   gem 'rspec-rails', '~> 6.0.3'
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
 
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
