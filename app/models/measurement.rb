@@ -82,17 +82,7 @@ class Measurement < ApplicationRecord
   end
 
   def self.database_init
-    # Load DATABASE_PASSWORD into env
-    Dotenv.load '.env.local'
-
-    # TODO: make this parse or reuse the connection from database.yml
-    ActiveRecord::Base.establish_connection(
-      adapter:  'postgresql', # or 'postgresql' or 'sqlite3'
-      database: 'dlcounts',
-      username: 'thecount',
-      password: ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"],
-      host:     ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"]
-    )
+    AR::BaseConnection.new(poolSize: 1)
   end
 
   def self.kube_init

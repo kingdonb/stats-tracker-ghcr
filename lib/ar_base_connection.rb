@@ -12,7 +12,7 @@ module AR
   class BaseConnection
     extend Forwardable
     def_delegators :@properties, :[], :[]=
-    def initialize(version:, plural:, poolSize: nil)
+    def initialize(version: nil, plural: nil, poolSize: nil)
       @group = "example.com"
       @properties = {}
       @version = version
@@ -39,8 +39,10 @@ module AR
         ActiveRecord::Base.establish_connection(config)
       end
 
+      if @version.present? && @plural.present?
       # KubernetesOperator builds a K8s API (HTTP client) handle
       @properties[:opi] = KubernetesOperator.new(@group,@version,@plural)
+      end
     end
 
     def rails_env
