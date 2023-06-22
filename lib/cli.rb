@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'fiber_scheduler'
 require 'thor'
+require 'pry'
 
 require './lib/project_reconciler'
 require './lib/leaf_reconciler'

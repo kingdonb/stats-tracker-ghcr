@@ -54,8 +54,10 @@ module Leaf
 
       # it's not unheard of that some leaves are already in the cluster on startup
       leaves = k8s.get_leaves(namespace: 'default')
+      # binding.pry
       # it might not be too late for these leaves, try calling upsert on them again
       leaves.each do |leaf|
+        # binding.pry
         resp = upsert(leaf)
         # update status
         if resp.is_a?(Hash) && resp[:status]
@@ -63,14 +65,30 @@ module Leaf
           k8s.patch_entity('leaves', leaf[:metadata][:name]+"/status", {status: resp[:status]}, 'merge-patch', 'default')
         end
       end
+      # binding.pry
 
+      # Fiber.schedule {
+        #begin
       # We don't want forked processes to inherit this part, so
       # call kubernetes-operator run method in a forked process
-      pid = Process.fork do
-        # register callbacks for upsert and delete
-        @opi.run
-      end
-      Process.wait pid
+      # pid = Process.fork do
+        #if pid.nil?
+        #  @logger.info("we are in the fork (pid:#{pid})}")
+          #reinit_connections
+
+          # register callbacks for upsert and delete
+          @opi.run
+        # else
+        #   @logger.info("this log message should never be printed}")
+        # end
+      # end
+      @logger.info("forked and waiting for reconciler (pid:#{pid})}")
+      # Process.wait pid
+      @logger.info("leaf reconciler exited")
+        #rescue => exception
+        #  binding.pry
+        #end
+      #}
     end
 
     def upsert(obj)
