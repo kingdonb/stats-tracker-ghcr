@@ -6,6 +6,7 @@ ruby '3.1.4'
 # ruby "3.0.6"
 
 gem 'awesome_print'
+gem 'app_version'
 
 gem 'gammo'
 gem 'pry'
