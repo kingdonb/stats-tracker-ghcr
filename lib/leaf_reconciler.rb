@@ -16,11 +16,29 @@ module Leaf
   class Operator
     require './lib/my_wasmer'
     def initialize()
-      reinit_connections
+      init_connections
       @opi.setUpsertMethod(method(:upsert))
       @opi.setDeleteMethod(method(:delete))
     end
 
+    def init_k8s_only
+      @opi = @api[:opi]
+      @logger = @opi.getLogger
+      @eventHelper = @opi.getEventHelper
+    end
+
+    # In the parent process, we don't use any database connections
+    def init_connections
+      crdVersion = "v1alpha1"
+      crdPlural = "leaves"
+
+      @api = AR::BaseConnection.
+        new(version: crdVersion, plural: crdPlural, poolSize: 0)
+
+      init_k8s_only
+    end
+
+    # In the forked process under each fiber, use the database
     def reinit_connections
       crdVersion = "v1alpha1"
       crdPlural = "leaves"
@@ -28,9 +46,7 @@ module Leaf
       @api = AR::BaseConnection.
         new(version: crdVersion, plural: crdPlural, poolSize: 1)
 
-      @opi = @api[:opi]
-      @logger = @opi.getLogger
-      @eventHelper = @opi.getEventHelper
+      init_k8s_only
     end
 
     def run
@@ -48,8 +64,13 @@ module Leaf
         end
       end
 
-      # the callback register for upsert and delete
-      @opi.run
+      # We don't want forked processes to inherit this part, so
+      # call kubernetes-operator run method in a forked process
+      pid = Process.fork do
+        # register callbacks for upsert and delete
+        @opi.run
+      end
+      Process.wait pid
     end
 
     def upsert(obj)
@@ -115,6 +136,7 @@ module Leaf
 
           # When the fiber gets back, it will store its results in the cache
           Fiber.schedule { pid = Process.fork do
+            name = obj["metadata"]["name"]
             reinit_connections
             @logger.info("the fiber is running leaf/#{name}")
             k8s = k8s_client
@@ -159,6 +181,9 @@ module Leaf
           rec = fetch_condition_by_type(obj: obj, cond_type: 'Reconciling')
           how_long = Time.now - Time.parse(rec.lastTransitionTime)
           stalled = how_long > 5 # seconds
+
+          name = obj["metadata"]["name"]
+          generation = obj["metadata"]["generation"]
 
           if stalled
             @logger.info("stalled, rescheduling leaf/#{name}")

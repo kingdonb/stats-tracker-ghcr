@@ -35,8 +35,11 @@ module AR
         config[:pool] = poolSize
       end
 
-      # We're calling BaseConnection.new, likely because we have forked
-      ActiveRecord::Base.establish_connection(config)
+      # If we're in the parent process, don't establish
+      if config[:pool] > 0
+        # We're calling BaseConnection.new, likely because we have forked
+        ActiveRecord::Base.establish_connection(config)
+      end
 
       # The KubernetesOperator will build a K8s API (HTTP client) handle
       @properties[:opi] = KubernetesOperator.new(@group,@version,@plural)

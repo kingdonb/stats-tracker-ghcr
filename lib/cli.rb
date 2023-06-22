@@ -11,11 +11,8 @@ class MyCLI < Thor
 
   desc "sample ORG", "Create a Project for the GitHub ORG and Reconcile projects"
   def sample(name: "fluxcd")
-    # Fiber.set_scheduler(FiberScheduler.new)
-
     projer = Project::Operator.new
-    Sample.ensure(projer)
-
+    Sample.ensure()
     projer.run
   end
 
@@ -32,9 +29,7 @@ class MyCLI < Thor
     Fiber.set_scheduler(FiberScheduler.new)
     leafer = Leaf::Operator.new
 
-    Fiber.schedule do
-      leafer.run
-    end
+    leafer.run
   end
 
   desc "measure", "Do the measurement (Health Checks)"

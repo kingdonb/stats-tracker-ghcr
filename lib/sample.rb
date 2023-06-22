@@ -1,10 +1,15 @@
 require 'yaml'
 require 'ap'
+require './lib/ar_base_connection'
 
 class Sample
-  def self.ensure(operator)
+  def self.ensure()
+    crdVersion = "v1alpha1"
+    crdPlural = "projects"
+    api = AR::BaseConnection.
+      new(version: crdVersion, plural: crdPlural, poolSize: 1)
+    operator = api[:opi]
     k8s = operator.
-      instance_variable_get("@opi").
       instance_variable_get("@k8sclient")
     docs = YAML.load_file('./kubernetes/namespaced/sample.yml')
 
