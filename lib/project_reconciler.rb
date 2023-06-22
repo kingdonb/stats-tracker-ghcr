@@ -68,7 +68,7 @@ module Project
         image = path.split("/")[6]
         repoName = t[1][1]
 
-        if name == "source-controller" # DEBUGGING
+        # if name == "source-controller" # DEBUGGING
 
         # d = <<~YAML
         #   ---
@@ -100,7 +100,7 @@ module Project
           }
         }))
 
-        end # if-source-controller DEBUGGING
+        # end # if-source-controller DEBUGGING
       end
 
       # If we could pass last_update ahead, to the health checker...

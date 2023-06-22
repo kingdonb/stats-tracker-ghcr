@@ -35,13 +35,11 @@ module AR
         config[:pool] = poolSize
       end
 
-      # If we're in the parent process, don't establish
       if config[:pool] > 0
-        # We're calling BaseConnection.new, likely because we have forked
         ActiveRecord::Base.establish_connection(config)
       end
 
-      # The KubernetesOperator will build a K8s API (HTTP client) handle
+      # KubernetesOperator builds a K8s API (HTTP client) handle
       @properties[:opi] = KubernetesOperator.new(@group,@version,@plural)
     end
 
@@ -50,7 +48,8 @@ module AR
     end
 
     def database_config
-      ActiveRecord::Base.configurations.configurations.select do |con|
+      ActiveRecord::Base.configurations.
+        configurations.select do |con|
         con.env_name == rails_env
       end.first.configuration_hash.to_h.deep_dup
     end
