@@ -10,36 +10,31 @@ require 'dotenv'
 require './app/models/github_org'
 require './app/models/repository'
 require './app/models/package'
+require './lib/ar_base_connection'
 
 module Leaf
   class Operator
     require './lib/my_wasmer'
     def initialize()
-      crdGroup = "example.com"
-      crdVersion = "v1alpha1"
-      crdPlural = "leaves"
-
-      # Load DATABASE_PASSWORD into env
-      Dotenv.load '.env.local'
-
-      # TODO: make this parse or reuse the connection from database.yml
-      ActiveRecord::Base.establish_connection(
-        adapter:  'postgresql', # or 'postgresql' or 'sqlite3'
-        database: 'dlcounts',
-        username: 'thecount',
-        password: ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"],
-        host:     ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"]
-      )
-
-      @opi = KubernetesOperator.new(crdGroup,crdVersion,crdPlural)
-      @logger = @opi.getLogger
-      @eventHelper = @opi.getEventHelper
+      reinit_connections
       @opi.setUpsertMethod(method(:upsert))
       @opi.setDeleteMethod(method(:delete))
     end
 
+    def reinit_connections
+      crdVersion = "v1alpha1"
+      crdPlural = "leaves"
+
+      @api = AR::BaseConnection.
+        new(version: crdVersion, plural: crdPlural, poolSize: 1)
+
+      @opi = @api[:opi]
+      @logger = @opi.getLogger
+      @eventHelper = @opi.getEventHelper
+    end
+
     def run
-      k8s = @opi.instance_variable_get("@k8sclient")
+      k8s = k8s_client
 
       # it's not unheard of that some leaves are already in the cluster on startup
       leaves = k8s.get_leaves(namespace: 'default')
@@ -66,7 +61,7 @@ module Leaf
       repo = obj["spec"]["repoName"]
       image = obj["spec"]["packageName"]
 
-      k8s = @opi.instance_variable_get("@k8sclient")
+      k8s = k8s_client
       store = @opi.instance_variable_get("@store")
 
       patch = {:status => {}}
@@ -119,8 +114,10 @@ module Leaf
           }}
 
           # When the fiber gets back, it will store its results in the cache
-          Fiber.schedule do
+          Fiber.schedule { pid = Process.fork do
+            reinit_connections
             @logger.info("the fiber is running leaf/#{name}")
+            k8s = k8s_client
             watcher = k8s.watch_leaves(namespace: 'default', name: name)
             watcher.each do |notice|
               # don't act on ADDED or DELETED notices
@@ -151,7 +148,10 @@ module Leaf
                 end # block where: finalizer_set && already_reconciling
               end # block where: only MODIFIED
             end # block where: watcher.each leaf in default namespace
-          end # Fiber.schedule
+          end # Process.fork
+
+          Process.wait(pid)
+          } # Fiber.schedule
             return patch
     end
 
@@ -199,7 +199,7 @@ module Leaf
 
     def delete(obj)
       @logger.info("delete leaf with the name #{obj["spec"]["packageName"]}")
-      k8s = @opi.instance_variable_get("@k8sclient")
+      k8s = k8s_client
       store = @opi.instance_variable_get("@store")
       name = obj["metadata"]["name"]
       generation = obj["metadata"]["generation"]
@@ -372,6 +372,10 @@ module Leaf
 
     def http_client_read
       http_client_wrapped.read
+    end
+
+    def k8s_client
+      @opi.instance_variable_get("@k8sclient")
     end
   end
 end
