@@ -18,34 +18,21 @@ require 'dotenv'
 
 require './app/models/github_org'
 require './app/models/package'
+require './lib/ar_base_connection'
 
 module Project
   class Operator
+    require './lib/operator_utility'
     def initialize
-      crdGroup = "example.com"
-      crdVersion = "v1alpha1"
-      crdPlural = "projects"
-
-      # Load DATABASE_PASSWORD into env
-      Dotenv.load '.env.local'
-
-      # TODO: make this parse or reuse the connection from database.yml
-      ActiveRecord::Base.establish_connection(
-        adapter:  'postgresql', # or 'postgresql' or 'sqlite3'
-        database: 'dlcounts',
-        username: 'thecount',
-        password: ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"],
-        host:     ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"]
-      )
-
-      @opi = KubernetesOperator.new(crdGroup,crdVersion,crdPlural)
-      @logger = @opi.getLogger
-      @eventHelper = @opi.getEventHelper
-      @opi.setUpsertMethod(method(:upsert))
-      @opi.setDeleteMethod(method(:delete))
     end
 
     def run
+      crdVersion = "v1alpha1"
+      crdPlural = "projects"
+      @api = AR::BaseConnection.
+        new(version: crdVersion, plural: crdPlural, poolSize: 0)
+
+      init_k8s_only
       @opi.run
     end
     

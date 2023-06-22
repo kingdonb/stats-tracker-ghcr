@@ -1,7 +1,8 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.2'
+# ruby '3.2.2'
+ruby '3.1.4'
 # ruby "3.0.6"
 
 gem 'awesome_print'
@@ -15,7 +16,7 @@ source "https://rubygems.pkg.github.com/kingdonb" do
   gem "kubernetes-operator", "0.1.5"
 end
 
-gem 'fiber_scheduler', github: "bruno-/fiber_scheduler", branch: "main"
+gem 'fiber_scheduler' #, github: "bruno-/fiber_scheduler", branch: "main" # use main branch for ruby 3.2.2
 gem 'io-event'
 gem 'connection_pool'
 

@@ -62,61 +62,7 @@ module Leaf
       repo = obj["spec"]["repoName"]
       image = obj["spec"]["packageName"]
 
-      # binding.pry
-      #     # We'll be reconciling in a fiber, and upsert may get called again
-      #     patch = {:status => {
-      #       :conditions => [{
-      #         :lastTransitionTime => DateTime.now,
-      #         :message => "Reconciling new generation #{generation}",
-      #         :observedGeneration => generation,
-      #         :reason => "NewGeneration",
-      #         :status => "True",
-      #         :type => "Reconciling"
-      #       }, {
-      #         :lastTransitionTime => DateTime.now,
-      #         :message => "Reconciling",
-      #         :observedGeneration => generation,
-      #         :reason => "Progressing",
-      #         :status => "False",
-      #         :type => "Ready"
-      #       }
-      #       ]
-      #     }}
-
-      #       k8s = k8s_client
-      #       watcher = k8s.watch_leaves(namespace: 'default', name: name)
-      #       watcher.each do |notice|
-      #         # don't act on ADDED or DELETED notices
-      #         if notice.type == "MODIFIED"
-      #           @logger.info("received MODIFIED notice leaf/#{name}")
-      #           new_obj = notice.object
-
-      #           # don't act unless Reconciling condition is set
-      #           if is_finalizer_set?(new_obj) && is_already_reconciling?(new_obj)
-      #             @logger.info("it's time to call reconcile_async leaf/#{name}")
-      #             uid = obj[:metadata][:uid]
-
-      #             # call reconcile_async when "Reconciling" is called for
-                  patched = reconcile_async(obj: obj, name: name, project: project, repo: repo, image: image, k8s: k8s)
-
-      #             # avoid upsert getting called again, (but some calls may still make it through)
-      #             latest_version = patched[:metadata][:resourceVersion]
-      #             store.transaction do
-      #               if store[uid] < latest_version
-      #                 store[uid] = latest_version
-      #                 store.commit
-      #               end
-      #             end
-
-      #             @logger.info("ending watch of leaf/#{name}")
-      #             # we are done here, the watcher can be terminated
-      #             watcher.finish
-      #           end # block where: finalizer_set && already_reconciling
-      #         end # block where: only MODIFIED
-      #       end # block where: watcher.each leaf in default namespace
-
-      #       # FIXME
-      #       #return patch
+      patched = reconcile_async(obj: obj, name: name, project: project, repo: repo, image: image, k8s: k8s)
     end
 
     def is_finalizer_set?(obj)
@@ -124,61 +70,6 @@ module Leaf
       finalizers = metadata&.dig("finalizers")
       fin = finalizers&.select {|f| f == "leaves.v1alpha1.example.com"}
       return !fin&.first.nil?
-    end
-
-    def is_already_ready?(obj)
-      ready = fetch_condition_by_type(
-        obj: obj, cond_type: 'Ready')
-      return is_current?(obj: obj, cond: ready) &&
-        is_true?(obj: obj, cond: ready) &&
-        is_fresh?(obj: obj, cond: ready, stale: 10)
-    end
-
-    def is_already_reconciling?(obj)
-      reconciling = fetch_condition_by_type(
-        obj: obj, cond_type: 'Reconciling')
-      return is_current?(obj: obj, cond: reconciling)
-    end
-
-    def is_under_deletion?(obj)
-      ts = fetch_deletion_timestamp(obj: obj)
-      return !!ts
-    end
-
-    def fetch_deletion_timestamp(obj:)
-      metadata = obj["metadata"]
-      ts = metadata&.dig("deletionTimestamp")
-    end
-
-    def fetch_condition_by_type(obj:, cond_type:)
-      status = obj["status"]
-      conditions = status&.dig("conditions")
-      con = conditions&.select {|c| c[:type] == cond_type}
-      con&.first
-    end
-
-    # def last_transition_before_duration?(cond:, duration:)
-    #   last_transition = cond.dig(:lastTransitionTime)
-    # end
-
-    def is_true?(obj:, cond:)
-      status = cond&.dig(:status)
-      status == "True"
-    end
-
-    def is_fresh?(obj:, cond:, stale:)
-      time = cond&.dig(:lastTransitionTime)
-      how_long = Time.now - Time.parse(time)
-      too_long = how_long > stale
-
-      !too_long
-    end
-
-    def is_current?(obj:, cond:)
-      metadata = obj["metadata"]
-      generation = metadata&.dig(:generation)
-      observed = cond&.dig(:observedGeneration)
-      generation == observed
     end
 
     def reconcile_async(obj:, name:, project:, repo:, image:, k8s:)

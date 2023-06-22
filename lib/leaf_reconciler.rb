@@ -11,24 +11,20 @@ require './app/models/github_org'
 require './app/models/repository'
 require './app/models/package'
 require './lib/ar_base_connection'
+require 'connection_pool'
 
 module Leaf
   class Operator
+    require './lib/operator_utility'
     def initialize()
-      # init_connections
+      $process_pool = ConnectionPool.new(size: 5, timeout: 10) { "bucket" }
     end
 
-    def init_k8s_only
-      @opi = @api[:opi]
-      @logger = @opi.getLogger
-      @eventHelper = @opi.getEventHelper
-      @opi.setUpsertMethod(method(:upsert))
-      @opi.setDeleteMethod(method(:delete))
-    end
-
-    # (this is a do-nothing method, don't call it)
-    # In the parent process, we don't use any database connections
+    # (In the parent process, we wouldn't use any database connections
+    # so we wouldn't need to close them before forking... this is not
+    # how it works anymore, since Process.spawn)
     def init_connections
+    # (this is a do-nothing method, don't call it)
       # crdVersion = "v1alpha1"
       # crdPlural = "leaves"
 
@@ -50,52 +46,13 @@ module Leaf
     end
 
     def run
-      # k8s = k8s_client
-
-      # # it's not unheard of that some leaves are already in the cluster on startup
-      # leaves = k8s.get_leaves(namespace: 'default')
-      # # binding.pry
-      # # it might not be too late for these leaves, try calling upsert on them again
-      # leaves.each do |leaf|
-      #   # binding.pry
-      #   resp = upsert(leaf)
-      #   # update status
-      #   if resp.is_a?(Hash) && resp[:status]
-      #     # binding.pry
-      #     k8s.patch_entity('leaves', leaf[:metadata][:name]+"/status", {status: resp[:status]}, 'merge-patch', 'default')
-      #   end
-      # end
-      # binding.pry
-
-      # Fiber.schedule {
-        #begin
-      # We don't want forked processes to inherit this part, so
-      # call kubernetes-operator run method in a forked process
-      # pid = Process.fork do
-        #if pid.nil?
-        #  @logger.info("we are in the fork (pid:#{pid})}")
-          #reinit_connections
-
-          # register callbacks for upsert and delete
       crdVersion = "v1alpha1"
       crdPlural = "leaves"
       @api = AR::BaseConnection.
         new(version: crdVersion, plural: crdPlural, poolSize: 0)
 
       init_k8s_only
-      # set reconcileAt on any 
       @opi.run
-        # else
-        #   @logger.info("this log message should never be printed}")
-        # end
-      # end
-      # @logger.info("forked and waiting for reconciler (pid:#{pid})}")
-      # Process.wait pid
-      # @logger.info("leaf reconciler exited")
-        #rescue => exception
-        #  binding.pry
-        #end
-      #}
     end
 
     def upsert(obj)
@@ -159,13 +116,15 @@ module Leaf
         ]
       }}
 
-      # When the fiber gets back, it will store its results in the cache
-      Fiber.schedule do
-        name = obj["metadata"]["name"]
-        pid = Process.spawn "bundle exec ruby ./lib/reconcile_leaf.rb #{name}"
+      # run up to 5 processes at a time
+      # $process_pool.with do |bit|
+        Fiber.schedule do
+          name = obj["metadata"]["name"]
+          pid = Process.spawn "bundle exec ruby ./lib/reconcile_leaf.rb #{name}"
 
-        Process.wait(pid)
-      end
+          Process.wait(pid)
+        end
+      # end
       return patch
     end
 

@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/bruno-/fiber_scheduler.git
-  revision: 442188f8c752aa236eb3254d52b3dc762d75ac81
-  branch: main
-  specs:
-    fiber_scheduler (0.13.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -120,6 +113,7 @@ GEM
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
+    fiber_scheduler (0.13.0)
     gammo (0.3.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
@@ -317,7 +311,7 @@ DEPENDENCIES
   dotenv
   dotenv-rails
   factory_bot_rails
-  fiber_scheduler!
+  fiber_scheduler
   gammo
   importmap-rails
   io-event
@@ -339,7 +333,7 @@ DEPENDENCIES
   webdrivers
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.1.4p223
 
 BUNDLED WITH
    2.4.14
