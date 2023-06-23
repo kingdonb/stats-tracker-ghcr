@@ -162,6 +162,11 @@ GEM
       rake (~> 13.0)
     log4r (1.1.10)
     log_formatter (0.8.2)
+    lograge (0.12.0)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.21.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -236,6 +241,8 @@ GEM
     regexp_parser (2.8.1)
     reline (0.3.5)
       io-console (~> 0.5)
+    request_store (1.5.1)
+      rack (>= 1.4)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
       http-cookie (>= 1.0.2, < 2.0)
@@ -322,6 +329,7 @@ DEPENDENCIES
   io-event
   jbuilder
   kubernetes-operator
+  lograge
   pg (~> 1.1)
   pry
   puma (~> 5.0)

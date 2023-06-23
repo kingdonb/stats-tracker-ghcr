@@ -11,6 +11,9 @@ gem 'app_version', github: "afaraldo/app_version", branch: "master"
 gem 'gammo'
 gem 'pry'
 
+# Makes log output more sensible
+gem 'lograge'
+
 # gem 'chartkick'
 gem 'kubernetes-operator'
 # source "https://rubygems.pkg.github.com/kingdonb" do
