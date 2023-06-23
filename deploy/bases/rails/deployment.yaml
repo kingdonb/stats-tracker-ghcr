@@ -21,6 +21,9 @@ spec:
         name: statsview
         command: ["bundle"]
         args: ["exec", "rails", "server", "-b", "0.0.0.0"]
+        env:
+        - name: RAILS_ENV
+          value: production
         envFrom:
         - secretRef:
             name: stats-tracker
