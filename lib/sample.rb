@@ -11,7 +11,7 @@ class Sample
     operator = api[:opi]
     k8s = operator.
       instance_variable_get("@k8sclient")
-    docs = YAML.load_file('./kubernetes/namespaced/sample.yml')
+    docs = YAML.load_file('./deploy/bases/test/sample.yml')
 
     if docs.class == Hash
       docs = [docs]
