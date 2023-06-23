@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: stats-dev
+resources:
+  - ../../bases/crds
+  - ../../bases/rails
+  - ../../bases/rbac
+  - ../../bases/cron
+  - namespace.yaml
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/jobTemplate/spec/template/spec/containers/0/env/1
+      value:
+        name: RAILS_ENV
+        value: development
+  target:
+    kind: CronJob
+    name: stats-tracker-ghcr
+- patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/env/0
+      value:
+        name: RAILS_ENV
+        value: development
+  target:
+    kind: Deployment
+    name: stats-viewer

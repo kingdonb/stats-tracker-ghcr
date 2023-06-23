@@ -1,0 +1,5 @@
+## We can count on this namespace being present, as long as it is "default"
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: default
