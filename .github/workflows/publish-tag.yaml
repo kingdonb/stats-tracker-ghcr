@@ -34,6 +34,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
+        with:
+          ruby-version: '3.1.4'
+
       - name: Prepare
         id: prep
         run: |
@@ -45,11 +50,6 @@ jobs:
           fi
           echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
           echo IMAGE_TAG=${CFG_TAG} >> $GITHUB_OUTPUT
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
-        with:
-          ruby-version: '3.1.4'
 
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
