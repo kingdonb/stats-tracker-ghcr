@@ -7,5 +7,7 @@ resources:
   - ../../bases/rbac
   - ../../bases/cron
   - namespace.yaml
-# transformers:
-#   - labels.yaml
+images:
+- name: ghcr.io/kingdonb/stats-tracker-ghcr
+  newName: ghcr.io/kingdonb/stats-tracker-ghcr
+  newTag: 0.0.1
