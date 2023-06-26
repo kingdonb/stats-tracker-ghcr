@@ -50,7 +50,7 @@ jobs:
             exit 1
           fi
           echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
-          echo IMAGE_TAG=${CFG_TAG} >> $GITHUB_OUTPUT
+          echo IMAGE_TAG=${CFGTAG} >> $GITHUB_OUTPUT
 
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
