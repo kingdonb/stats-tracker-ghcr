@@ -38,6 +38,7 @@ jobs:
         uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
         with:
           ruby-version: '3.1.4'
+          bundler-cache: true
 
       - name: Prepare
         id: prep
