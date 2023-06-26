@@ -18,18 +18,6 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Prepare
-        id: prep
-        run: |
-          TAGGED=${GITHUB_REF/refs\/tags\//}
-          CFGTAG=$(rake app:version|awk '{print $3}')
-          if [[ "$TAGGED" != "$CFGTAG" ]]; then
-            echo "The config/version.yml does not match, double check the tag and try again."
-            exit 1
-          fi
-          echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
-          echo IMAGE_TAG=${CFG_TAG} >> $GITHUB_OUTPUT
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -45,6 +33,18 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Prepare
+        id: prep
+        run: |
+          TAGGED=${GITHUB_REF/refs\/tags\//}
+          CFGTAG=$(rake app:version|awk '{print $3}')
+          if [[ "$TAGGED" != "$CFGTAG" ]]; then
+            echo "The config/version.yml does not match, double check the tag and try again."
+            exit 1
+          fi
+          echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
+          echo IMAGE_TAG=${CFG_TAG} >> $GITHUB_OUTPUT
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
