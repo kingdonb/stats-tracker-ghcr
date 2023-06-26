@@ -18,7 +18,7 @@ class Measurement < ApplicationRecord
     gho = nil
     loop do
       gho = ::GithubOrg.find_by(name: project)
-      break if gho.present?
+      break if gho.present? && gho.package_count.present?
       # sleep 2
     end
 
