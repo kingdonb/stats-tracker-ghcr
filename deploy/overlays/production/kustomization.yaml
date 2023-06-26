@@ -10,4 +10,4 @@ resources:
 images:
 - name: ghcr.io/kingdonb/stats-tracker-ghcr
   newName: ghcr.io/kingdonb/stats-tracker-ghcr
-  newTag: 0.0.1
+  newTag: 0.0.2
