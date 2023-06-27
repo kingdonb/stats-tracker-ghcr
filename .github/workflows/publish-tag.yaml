@@ -112,9 +112,10 @@ jobs:
       - name: Upload Wasm binary to release
         uses: svenstaro/upload-release-action@v2
         with:
+          release_name: v${{ github.ref }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: lib/stat.wasm
           asset_name: stat.wasm
           tag: ${{ github.ref }}
           overwrite: true
-          body: "Uploaded here for reuse in the 'Execute' GHA workflow"
+          body: ""
