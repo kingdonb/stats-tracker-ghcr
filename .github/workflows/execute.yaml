@@ -1,0 +1,44 @@
+name: Execute
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "2 * * * *"
+env:
+  RAILS_ENV: production
+
+jobs:
+  components:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # thanks: https://stackoverflow.com/a/69708418/661659
+      - name: Checkout latest release tag
+        run: |
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          git checkout $LATEST_TAG
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
+        with:
+          ruby-version: '3.1.4'
+          bundler-cache: true
+
+      - name: Setup Kubernetes
+        uses: helm/kind-action@v1.7.0
+        with:
+          cluster_name: stats
+
+      - name: Execute 
+        shell: bash
+        env:
+          NEON_TECH_DATABASE_URL: ${{ secrets.NEON_TECH_DATABASE_URL }}
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+        run: |
+          kubectl apply -f deploy/bases/crds 
+          gem install foreman
+          make foreman
