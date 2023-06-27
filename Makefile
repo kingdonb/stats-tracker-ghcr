@@ -1,3 +1,4 @@
+.PHONY: version-set prerel release git-status
 .PHONY: foreman lib clean test all docker
 .PHONY: base gems gem-cache clean-cache gems-base
 
@@ -8,8 +9,33 @@ GEMS_TAG:=gems
 GEM_CACHE_TAG:=gem-cache
 PLATFORM:=linux/arm64
 OUTIMAGE:=kingdonb/opernator
+VERSION:=$(shell rake app:version | awk '{ print $$3 }')
 
 all: clean lib test
+
+release: git-status
+	git tag $(VERSION)
+	git push origin $(VERSION)
+
+prerel: set-version
+
+# https://kgolding.co.uk/snippets/makefile-check-git-status/
+git-status:
+	@status=$$(git status --porcelain); \
+	if [ ! -z "$${status}" ]; \
+	then \
+		echo "Error - working directory is dirty. Commit those changes!"; \
+		exit 1; \
+	fi
+
+set-version:
+	rake app:render
+	@next="$$(rake app:version | awk '{ print $$3 }')" && \
+	current="$(VERSION)" && \
+	echo "Replacing current version strings: $$current" && \
+	rake app:version && \
+	/usr/bin/sed -i '' "s/newTag: $$current/newTag: $$next/g" deploy/overlays/production/kustomization.yaml && \
+	echo "Version $$next set in code and manifests"
 
 docker:
 	# docker pull --platform $(PLATFORM) $(IMAGE):$(BASE_TAG)
