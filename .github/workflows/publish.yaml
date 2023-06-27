@@ -70,7 +70,9 @@ jobs:
           cache: false
           target: wasm32-wasi
 
-      - uses: Swatinem/rust-cache@v2
+      - name: Set up Rust cache
+        uses: Swatinem/rust-cache@v2
+        if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         with:
           workspaces: |
             lib/stat
