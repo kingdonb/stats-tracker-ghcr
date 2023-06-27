@@ -130,12 +130,6 @@ jobs:
         run: |
           cp "${HOME}/.local/bin/stat.wasm" lib/stat.wasm
 
-      - name: Restore Base
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
-
       - name: Build and push base
         uses: docker/build-push-action@v4
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
@@ -147,18 +141,6 @@ jobs:
           target: base
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Restore Base (for deploy/gems)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
-
-      - name: Restore Gem Cache (for deploy/gems)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget == 'gems' || github.event.inputs.dockerTarget == 'deploy' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
 
       - name: Build and push gems
         uses: docker/build-push-action@v4
@@ -201,12 +183,6 @@ jobs:
           cache-to: type=gha,mode=max
           # build-args: | ## Empty the cache
           #   CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
-
-      - name: Restore Gems (for deploy)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget == 'deploy' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.GEMS_TAG }}
 
       - name: Build and push latest
         uses: docker/build-push-action@v4

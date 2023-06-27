@@ -84,21 +84,6 @@ jobs:
           make -C lib stat.wasm
           cp lib/stat.wasm "${HOME}/.local/bin"
 
-      - name: Restore Base
-        shell: bash
-        run: |
-          docker pull ${{ env.IMAGE_NAME }}:${{ env.BASE_TAG }}
-
-      - name: Restore Gem Cache
-        shell: bash
-        run: |
-          docker pull ${{ env.IMAGE_NAME }}:${{ env.GEM_CACHE_TAG }}
-
-      - name: Restore Gems
-        shell: bash
-        run: |
-          docker pull ${{ env.IMAGE_NAME }}:${{ env.GEMS_TAG }}
-
       - name: Build and push tag
         uses: docker/build-push-action@v4
         with:
