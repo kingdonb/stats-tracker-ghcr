@@ -4,11 +4,11 @@
 # instead edit the file application/lib/templates/version.yml.erb
 
 major:        0
-minor:        0
-patch:        3
+minor:        1
+patch:        0
 # meta:		  rc.1
 # milestone:  4
-build:      226
+build:      227
 
 committer:  Kingdon Barrett
 build_date: 2023-06-27
