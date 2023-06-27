@@ -118,7 +118,7 @@ jobs:
       - name: Upload Wasm binary to release
         uses: svenstaro/upload-release-action@v2
         with:
-          release_name: v${{ github.ref }}
+          release_name: v${{ steps.prep.outputs.IMAGE_TAG }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: lib/stat.wasm
           asset_name: stat.wasm
