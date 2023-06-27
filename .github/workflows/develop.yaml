@@ -120,42 +120,6 @@ jobs:
         run: |
           cp "${HOME}/.local/bin/stat.wasm" lib/stat.wasm
 
-      # - name: Restore Base
-      #   shell: bash
-      #   if: "${{ github.event.inputs.dockerTarget == 'base' }}"
-      #   run: |
-      #     docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
-
-      # - name: Build and push base
-      #   uses: docker/build-push-action@v4
-      #   if: "${{ github.event.inputs.dockerTarget == 'base'}}"
-      #   with:
-      #     context: .
-      #     platforms: linux/amd64,linux/arm64
-      #     push: true
-      #     tags: ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
-      #     target: base
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
-
-      - name: Restore Base (for deploy/gems)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget != 'base' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
-
-      - name: Restore Gem Cache (for deploy/gems)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget != 'base' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
-
-      - name: Restore Gems (for deploy)
-        shell: bash
-        if: "${{ github.event.inputs.dockerTarget != 'base' }}"
-        run: |
-          docker pull ${{ env.IMAGE_TAG }}:${{ env.GEMS_TAG }}
-
       - name: Build and push latest
         uses: docker/build-push-action@v4
         if: "${{ github.event.inputs.dockerTarget != 'base'}}"
