@@ -145,6 +145,8 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          # sbom: true
+          # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
@@ -158,6 +160,8 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          # sbom: true
+          # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEMS_TAG }}
@@ -173,6 +177,8 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          # sbom: true
+          # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
@@ -188,6 +194,8 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          # sbom: true
+          # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
@@ -203,6 +211,8 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          # sbom: true
+          # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:latest
