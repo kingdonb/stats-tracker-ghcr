@@ -33,12 +33,12 @@ jobs:
         with:
           cluster_name: stats
 
-      - name: Execute 
+      - name: Execute
         shell: bash
         env:
           NEON_TECH_DATABASE_URL: ${{ secrets.NEON_TECH_DATABASE_URL }}
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
         run: |
-          kubectl apply -f deploy/bases/crds 
+          kubectl apply -k deploy/bases/crds
           gem install foreman
           make foreman
