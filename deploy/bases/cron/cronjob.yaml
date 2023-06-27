@@ -12,7 +12,7 @@ spec:
           serviceAccountName: "stats-tracker-ghcr"
           containers:
             - name: stathcr
-              image: ghcr.io/kingdonb/stats-tracker-ghcr:latest
+              image: ghcr.io/kingdonb/stats-tracker-ghcr:canary
               imagePullPolicy: Always
               #args:
               #  - "-v=3"
