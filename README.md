@@ -80,20 +80,20 @@ be easy. Such is the way of the modern developer! Come with me, on a journey...
 Todo:
 
 * [X] Collect the data (it should go somewhere permanent)
-* [ ] Update the data store with new data on some interval
-* [ ] Build a way to represent the collected data visually
+* [X] Update the data store with new data on some interval
+* [X] Build a way to represent the collected data visually
 * [ ] Show failed collections on the visual representation too
 
 Stretch:
 
 * [ ] Alerting with Prometheus when collections are failing
-* [ ] Deploy this on Kubernetes, with minimal web interface
+* [X] Deploy this on Kubernetes, with minimal web interface
 
 Value-add extras:
 
 * [ ] Allow scaling the deployment/web client process to zero
 * [ ] Show how Prometheus can retain metrics while scaling to zero
-* [ ] Try to split the front-end web service from the collector
+* [X] Try to split the front-end web service from the collector
 * [ ] Review code re-use opportunities: did we find any of them?
 * [ ] Add good documentation about how to run this in perpetuity
 
