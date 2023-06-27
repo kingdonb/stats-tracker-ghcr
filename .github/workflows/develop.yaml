@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # needed for keyless signing
+      # id-token: write # needed for keyless signing
       packages: write # needed for ghcr access
     steps:
       - name: Set up QEMU
@@ -61,6 +61,7 @@ jobs:
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
+        if: "${{ github.event.inputs.dockerTarget == 'base' }}"
         with:
           ruby-version: '3.1.4'
 
