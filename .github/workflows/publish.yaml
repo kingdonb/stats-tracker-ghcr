@@ -22,7 +22,7 @@ on:
         options:
           - ''
           - base
-          - latest
+          - canary
           - gem-cache
           - gems
 env:
@@ -205,7 +205,7 @@ jobs:
           # build-args: | ## Empty the cache
           #   CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag }}
 
-      - name: Build and push latest
+      - name: Build and push canary
         uses: docker/build-push-action@v4
         if: "${{ github.event.inputs.dockerTarget == 'deploy'}}"
         with:
@@ -215,7 +215,7 @@ jobs:
           # provenance: true
           push: true
           builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ env.IMAGE_TAG }}:latest
+          tags: ${{ env.IMAGE_TAG }}:canary
           target: deploy
           cache-from: type=gha
           cache-to: type=gha,mode=max
