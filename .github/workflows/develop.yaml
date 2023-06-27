@@ -39,12 +39,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      id-token: write # needed for keyless signing
+      packages: write # needed for ghcr access
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GHCR
@@ -160,10 +162,22 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          sbom: true
+          provenance: true
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:latest
           target: deploy
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
             CACHE_IMAGE=${{ env.IMAGE_TAG }}:${{ github.event.inputs.cacheTag || env.GEM_CACHE_TAG }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign OCI artifacts
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign $IMAGE_TAG:latest --yes

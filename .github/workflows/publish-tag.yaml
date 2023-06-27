@@ -5,6 +5,7 @@ on:
     tags: ['*']
 env:
   IMAGE_NAME: ghcr.io/kingdonb/stats-tracker-ghcr
+  MANIFEST_NAME: ghcr.io/kingdonb/manifests/stats-tracker
   BASE_TAG: base
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
@@ -15,13 +16,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      packages: write
+      contents: write # needed to write releases
+      id-token: write # needed for keyless signing
+      packages: write # needed for ghcr access
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GHCR
@@ -101,7 +104,10 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          sbom: true
+          provenance: true
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.IMAGE_TAG }}
           target: deploy
           cache-from: type=gha
@@ -119,3 +125,23 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           body: ""
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+      - name: Install flux
+        uses: fluxcd/flux2/action@main
+
+      - name: Publish Flux OCI artifact to GHCR
+        run: |
+          flux push artifact oci://$MANIFEST_NAME:${{ steps.prep.outputs.IMAGE_TAG }} \
+            --path="./deploy" \
+            --source="${{ github.event.repository.html_url }}" \
+            --revision="${GITHUB_REF_NAME}/${GITHUB_SHA}"
+          flux tag artifact oci://$MANIFEST_NAME:${{ steps.prep.outputs.IMAGE_TAG }} --tag latest
+
+      - name: Sign OCI artifacts
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign $IMAGE_NAME:${{ steps.prep.outputs.IMAGE_TAG }} --yes
+          cosign sign $MANIFEST_NAME:${{ steps.prep.outputs.IMAGE_TAG }} --yes
