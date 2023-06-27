@@ -44,6 +44,7 @@ jobs:
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GHCR
@@ -137,6 +138,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.BASE_TAG }}
           target: base
           cache-from: type=gha
@@ -149,6 +151,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEMS_TAG }}
           target: gems
           cache-from: type=gha
@@ -163,6 +166,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
           target: gem-cache
           cache-from: type=gha
@@ -177,6 +181,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:${{ env.GEM_CACHE_TAG }}
           target: gem-cache
           cache-from: type=gha
@@ -191,6 +196,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.IMAGE_TAG }}:latest
           target: deploy
           cache-from: type=gha
