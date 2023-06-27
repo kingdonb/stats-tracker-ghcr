@@ -32,6 +32,7 @@ set-version:
 	rake app:render
 	@next="$$(rake app:version | awk '{ print $$3 }')" && \
 	current="$(VERSION)" && \
+	echo "Replacing current version strings: $$current" && \
 	rake app:version && \
 	/usr/bin/sed -i '' "s/newTag: $$current/newTag: $$next/g" deploy/overlays/production/kustomization.yaml && \
 	echo "Version $$next set in code and manifests"
