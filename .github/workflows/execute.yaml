@@ -6,6 +6,7 @@ on:
     - cron: "2 * * * *"
 env:
   RAILS_ENV: production
+  REPO_NAME: kingdonb/stats-tracker-ghcr
 
 jobs:
   components:
@@ -18,9 +19,11 @@ jobs:
 
       # thanks: https://stackoverflow.com/a/69708418/661659
       - name: Checkout latest release tag
+        id: checkout
         run: |
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           git checkout $LATEST_TAG
+          echo LATEST_TAG=$LATEST_TAG >> $GITHUB_OUTPUT
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
@@ -38,7 +41,9 @@ jobs:
         env:
           NEON_TECH_DATABASE_URL: ${{ secrets.NEON_TECH_DATABASE_URL }}
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          LATEST_TAG: ${{ steps.checkout.outputs.LATEST_TAG }}
         run: |
           kubectl apply -k deploy/bases/crds
+          curl -sSL https://github.com/$REPO_NAME/releases/download/$LATEST_TAG/stat.wasm -o lib/stat.wasm
           gem install foreman
           make foreman
