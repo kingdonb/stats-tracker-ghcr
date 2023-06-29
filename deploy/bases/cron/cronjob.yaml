@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: stats-tracker-ghcr
 spec:
-  schedule: "*/4 * * * *"
+  schedule: "9 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
