@@ -17,6 +17,8 @@ require 'pg'
 require 'dotenv'
 
 require './app/models/package'
+require './app/models/version'
+require './app/models/version_measurement'
 require './lib/ar_base_connection'
 
 module PackageVersion
@@ -52,19 +54,22 @@ module PackageVersion
         sleep 2
       end
 
+      overall_count = 0
       VersionMeasurement.transaction do |t|
-        overall_count = 0
         @ts.each do |t|
           v = t[0]
           count = t[1][0]
 
           begin
             version = Semantic::Version.new(v)
+            vers = Version.find_or_create_by(package: pack, version: version.to_s)
             measure = VersionMeasurement.new(
               measured_at: time_t0,
               count: count,
-              package: pack)
-            m.save!
+              package: pack,
+              version: vers
+            )
+            measure.save!
 
             overall_count = overall_count + 1
 
@@ -74,6 +79,7 @@ module PackageVersion
         end
       end
 
+      @logger.info("reached the end for packageversion {projectName: #{projectName}, packageName: #{packageName}}")
       time_t1 = DateTime.now.in_time_zone.to_time
 
       {:status => {
