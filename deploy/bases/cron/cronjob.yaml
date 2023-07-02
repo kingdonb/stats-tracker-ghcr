@@ -13,7 +13,7 @@ spec:
           containers:
             - name: stathcr
               image: ghcr.io/kingdonb/stats-tracker-ghcr:canary
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               #args:
               #  - "-v=3"
               #  - --privateKeyPath=/etc/secret-volume/privatekey.pem

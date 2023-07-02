@@ -1,0 +1,66 @@
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "kustomize-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "kustomize-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "source-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "source-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "notification-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "notification-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "image-automation-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "image-automation-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "helm-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "helm-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "image-reflector-controller"
+spec:
+  projectName: "fluxcd"
+  packageName: "image-reflector-controller"
+---
+kind: PackageVersion
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "flagger"
+spec:
+  projectName: "fluxcd"
+  packageName: "flagger"
+---
+kind: VersionLeaf
+apiVersion: example.com/v1alpha1
+metadata:
+  name: "kustomize-controller"
+spec:
+  repoName: "kustomize-controller"
+  projectName: "fluxcd"
+  packageName: "kustomize-controller"
+  version: "v1.0.0-rc.4"

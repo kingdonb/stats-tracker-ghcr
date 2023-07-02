@@ -10,6 +10,10 @@ resources:
 patches:
 - patch: |-
     - op: replace
+      path: /spec/schedule
+      value: "*/4 * * * *"
+        # Dev schedule runs every 4m
+    - op: replace
       path: /spec/jobTemplate/spec/template/spec/containers/0/env/1
       value:
         name: RAILS_ENV
@@ -26,3 +30,14 @@ patches:
   target:
     kind: Deployment
     name: stats-viewer
+- patch: |
+    - op: replace
+      path: /spec/jobTemplate/spec/template/spec/containers/0/imagePullPolicy
+      value: Always
+  target:
+    kind: CronJob
+    name: stats-tracker-ghcr
+images:
+- name: ghcr.io/kingdonb/stats-tracker-ghcr
+  newName: ghcr.io/kingdonb/stats-tracker-ghcr
+  newTag: canary

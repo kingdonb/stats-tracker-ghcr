@@ -7,6 +7,7 @@ ruby '3.1.4'
 
 gem 'awesome_print'
 gem 'app_version', github: "afaraldo/app_version", branch: "master"
+gem 'semantic'
 
 gem 'gammo'
 gem 'pry'
