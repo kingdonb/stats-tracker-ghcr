@@ -30,11 +30,11 @@ rules:
   - list
 
 - apiGroups: ["example.com"]
-  resources: ["projects", "leaves"]
+  resources: ["projects", "leaves", "packageversions"]
   verbs: ["*"]
 
 - apiGroups: ["example.com"]
-  resources: ["projects/status", "leaves/status"]
+  resources: ["projects/status", "leaves/status", "packageversions/status"]
   verbs: ["*"]
 
 - apiGroups:
