@@ -66,9 +66,9 @@ class MyCLI < Thor
   #   versionleafer.run
   # end
 
-  desc "measure", "Do the measurement (PackageVersion/Leaves)"
-  def measver()
-    # Fiber.set_scheduler(FiberScheduler.new)
-    VersionMeasurement.call
-  end
+  # desc "measure", "Do the measurement (PackageVersion/Leaves)"
+  # def measver()
+  #   # Fiber.set_scheduler(FiberScheduler.new)
+  #   VersionMeasurement.call
+  # end
 end
