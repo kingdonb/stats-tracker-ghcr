@@ -46,7 +46,7 @@ class MyCLI < Thor
   desc "pkvsample PKG", "Create a PackageVersion for the Kustomize Controller (or PKG) and Reconcile PackageVersions"
   def pkvsample(name: "fluxcd", pkvname: "kustomize-controller")
     packageversioner = PackageVersion::Operator.new
-    PkvSample.ensure(name, pkvname)
+    PkvSample.ensure()
     packageversioner.run
   end
 
