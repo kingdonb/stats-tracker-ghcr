@@ -59,7 +59,6 @@ class Measurement < ApplicationRecord
       k8s.delete_package_version(p["metadata"]["name"], 'default')
     end
 
-    k8s.delete_package_versions(namespace: 'default')
     while (g = k8s.get_leaves(namespace: 'default').count) > 0
       puts "########### g (#{g}) leaves left; still collecting #######"
       sleep 3
