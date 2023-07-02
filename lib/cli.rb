@@ -7,6 +7,10 @@ require './lib/project_reconciler'
 require './lib/leaf_reconciler'
 require './lib/sample'
 require './app/models/measurement'
+require './lib/package_version_reconciler'
+# require './lib/version_leaf_reconciler'
+require './lib/pkv_sample'
+require './app/models/version_measurement'
 
 class MyCLI < Thor
 
@@ -37,5 +41,34 @@ class MyCLI < Thor
   def measure()
     # Fiber.set_scheduler(FiberScheduler.new)
     Measurement.call
+  end
+
+  desc "pkvsample PKG", "Create a PackageVersion for the Kustomize Controller (or PKG) and Reconcile PackageVersions"
+  def pkvsample(name: "fluxcd", pkvname: "kustomize-controller")
+    packageversioner = PackageVersion::Operator.new
+    PkvSample.ensure(name, pkvname)
+    packageversioner.run
+  end
+
+  desc "packageversion", "Reconcile the packageversions"
+  def packageversion()
+    # Fiber.set_scheduler(FiberScheduler.new)
+    packageversioner = PackageVersion::Operator.new
+
+    packageversioner.run
+  end
+
+  # desc "versionleaf", "Reconcile the versionleaves"
+  # def versionleaf()
+  #   Fiber.set_scheduler(FiberScheduler.new)
+  #   versionleafer = VersionLeaf::Operator.new
+
+  #   versionleafer.run
+  # end
+
+  desc "measure", "Do the measurement (PackageVersion/Leaves)"
+  def measver()
+    # Fiber.set_scheduler(FiberScheduler.new)
+    VersionMeasurement.call
   end
 end
