@@ -17,8 +17,10 @@ class PkvSample
       docs = [docs]
     end
 
+    count = 0
     docs.each do |pkv|
       if pkv["kind"] == "PackageVersion"
+        count = count + 1
         name = pkv["metadata"]["name"]
         projectName = pkv["spec"]["projectName"]
         packageName = pkv["spec"]["packageName"]
@@ -41,7 +43,11 @@ class PkvSample
           }
         }))
       else
-        raise StandardError, "Sample yaml was not a PackageVersion as expected"
+        if count == 0
+          raise StandardError, "Sample yaml was not a PackageVersion as expected"
+        else
+          # (do nothing, samples were created)
+        end
       end
     end
   end
