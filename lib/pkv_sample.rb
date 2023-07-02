@@ -11,7 +11,7 @@ class PkvSample
     operator = api[:opi]
     k8s = operator.
       instance_variable_get("@k8sclient")
-    docs = YAML.load_file('./deploy/bases/test/pkvsample.yml')
+    docs = YAML.load_stream(File.read('./deploy/bases/test/pkvsample.yml'))
 
     if docs.class == Hash
       docs = [docs]
