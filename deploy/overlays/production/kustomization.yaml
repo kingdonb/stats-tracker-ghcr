@@ -10,5 +10,5 @@ resources:
 images:
 - name: ghcr.io/kingdonb/stats-tracker-ghcr
   newName: ghcr.io/kingdonb/stats-tracker-ghcr
-  newTag: 0.1.6
+  newTag: 0.1.7
 patches: []
