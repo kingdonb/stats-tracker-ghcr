@@ -1,6 +1,7 @@
 .PHONY: version-set prerel release git-status
 .PHONY: foreman lib clean test all docker
 .PHONY: base gems gem-cache clean-cache gems-base
+.PHONY: cosign-verify
 
 IMAGE:=ghcr.io/kingdonb/stats-tracker-ghcr
 TAG:=latest
@@ -16,6 +17,11 @@ all: clean lib test
 release: git-status
 	git tag $(VERSION)
 	git push origin $(VERSION)
+
+cosign-verify:
+	cosign verify ghcr.io/kingdonb/manifests/stats-tracker:$(VERSION) \
+		--certificate-identity=https://github.com/kingdonb/stats-tracker-ghcr/.github/workflows/publish-tag.yaml@refs/tags/$(VERSION) \
+		--certificate-oidc-issuer=https://token.actions.githubusercontent.com
 
 prerel: set-version
 
