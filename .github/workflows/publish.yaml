@@ -31,7 +31,7 @@ env:
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
   WABT_VERSION: 1.0.33
-  BINARYEN_VERSION: "113"
+  BINARYEN_VERSION: "116"
 
 jobs:
   release:
