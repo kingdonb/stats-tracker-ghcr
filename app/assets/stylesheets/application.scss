@@ -1,0 +1,31 @@
+// 1. Include functions & variables first
+@import "bootstrap/functions";
+@import "bootstrap/variables";
+
+$custom-colors: (
+  "bootstrap": #563d7c,
+  "simpleform": #00617f
+);
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+// Custom bootstrap variables must be set or imported *before* bootstrap.
+@import "bootstrap";
+
+
+// App sections
+@import "application/breadcrumb";
+@import "application/example";
+@import "application/flash";
+@import "application/footer";
+@import "application/header";
+@import "application/jumbotron";
+
+// Components
+@import "components/alert";
+@import "components/icon";
+
+// Syntax highlight
+@import "dracula/pygments/dracula";
+
+// simple_form helpers
+@import "simple_form-bootstrap/simple_form-bootstrap";
