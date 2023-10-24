@@ -9,6 +9,7 @@ gem 'cookies_eu'
 gem 'awesome_print'
 gem 'app_version', github: "afaraldo/app_version", branch: "master"
 gem 'semantic'
+gem 'simple_form'
 
 gem 'gammo'
 gem 'pry'
