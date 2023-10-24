@@ -5,6 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.1.4'
 # ruby "3.0.6"
 
+gem 'cookies_eu'
 gem 'awesome_print'
 gem 'app_version', github: "afaraldo/app_version", branch: "master"
 gem 'semantic'
