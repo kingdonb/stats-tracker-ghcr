@@ -1,0 +1,2 @@
+class Landing < ApplicationRecord
+end

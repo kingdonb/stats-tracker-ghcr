@@ -20,13 +20,13 @@ RSpec.describe "landings/index", type: :view do
     ])
   end
 
-  it "renders a list of landings" do
+  it "renders a list of landings, and some extra stuff" do
     render
     cell_selector = Rails::VERSION::STRING >= '7' ? 'div>p' : 'tr>td'
     assert_select cell_selector, text: Regexp.new("Email".to_s), count: 2
     assert_select cell_selector, text: Regexp.new("Twitter".to_s), count: 2
     assert_select cell_selector, text: Regexp.new("Fediverse".to_s), count: 2
-    assert_select cell_selector, text: Regexp.new(false.to_s), count: 2
-    assert_select cell_selector, text: Regexp.new(false.to_s), count: 2
+    assert_select cell_selector, text: Regexp.new(false.to_s), count: 4
+    assert_select cell_selector, text: Regexp.new(false.to_s), count: 4
   end
 end

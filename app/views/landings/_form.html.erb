@@ -1,0 +1,42 @@
+<%= form_with(model: landing) do |form| %>
+  <% if landing.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(landing.errors.count, "error") %> prohibited this landing from being saved:</h2>
+
+      <ul>
+        <% landing.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :email, style: "display: block" %>
+    <%= form.text_field :email %>
+  </div>
+
+  <div>
+    <%= form.label :twitter, style: "display: block" %>
+    <%= form.text_field :twitter %>
+  </div>
+
+  <div>
+    <%= form.label :fediverse, style: "display: block" %>
+    <%= form.text_field :fediverse %>
+  </div>
+
+  <div>
+    <%= form.label :accept_coc, style: "display: block" %>
+    <%= form.check_box :accept_coc %>
+  </div>
+
+  <div>
+    <%= form.label :printed_stickers_already, style: "display: block" %>
+    <%= form.check_box :printed_stickers_already %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
