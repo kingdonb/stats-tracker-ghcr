@@ -10,7 +10,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <%= content_tag :body, data: { action: action_name, controller: controller_name, path: request.path, controller: "toggle" } do %>
+  <%= content_tag :body, data: { action: action_name, controller: controller_name, path: request.path } do %>
     <%= render "header" %>
     <%= render "flash" %>
 

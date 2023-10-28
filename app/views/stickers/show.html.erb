@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @sticker %>
+
+<div>
+  <%= link_to "Edit this sticker", edit_sticker_path(@sticker) %> |
+  <%= link_to "Back to stickers", stickers_path %>
+
+  <%= button_to "Destroy this sticker", @sticker, method: :delete %>
+</div>
