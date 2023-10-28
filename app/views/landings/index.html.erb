@@ -15,6 +15,12 @@
 
 <%= render 'cookies_eu/consent_banner' %>
 
+<%= button_to(
+        "Log Out",
+        destroy_user_session_path,
+        method: :delete
+      ) %>
+
 <script type="text/javascript">
   document.addEventListener('cookies-eu-acknowledged', function() {
     // The user has acknowledged cookies! If they're logged in, make an api call
