@@ -1,0 +1,24 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Landings</h1>
+
+<div id="landings">
+  <% @landings.each do |landing| %>
+    <%= render landing %>
+    <p>
+      <%= link_to "Show this landing", landing %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New landing", new_landing_path %>
+
+<%= render 'cookies_eu/consent_banner' %>
+
+<script type="text/javascript">
+  document.addEventListener('cookies-eu-acknowledged', function() {
+    // The user has acknowledged cookies! If they're logged in, make an api call
+    // so we remember their preference.
+    fetch('/cookies/accept');
+  });
+</script>

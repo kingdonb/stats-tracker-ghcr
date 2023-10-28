@@ -1,10 +1,13 @@
 Rails.application.routes.draw do
+  get 'cookies/accept'
+  resources :landings
   resources :packages
   resources :repositories
   resources :github_orgs
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Defines the root path route ("/")
-  # root "articles#index"
   get '/healthz', to: proc { [200, {}, ['']] }
+
+  # Defines the root path route ("/")
+  root "landings#index"
 end

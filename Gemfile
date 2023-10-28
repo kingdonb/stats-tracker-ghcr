@@ -5,9 +5,16 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.1.4'
 # ruby "3.0.6"
 
+gem 'cookies_eu'
 gem 'awesome_print'
 gem 'app_version', github: "afaraldo/app_version", branch: "master"
 gem 'semantic'
+gem 'simple_form', '~> 5.1'
+gem 'bootstrap', '~> 5.1'
+gem 'rouge', '~> 3.26'
+gem 'inline_svg', '~> 1.7'
+gem 'kramdown', '~> 2.3'
+gem 'kramdown-parser-gfm', '~> 1.1'
 
 gem 'gammo'
 gem 'pry'
@@ -96,7 +103,7 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 gem "bootsnap", require: false
 
 # Use Sass to process CSS
-# gem "sassc-rails"
+gem "sassc-rails"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"

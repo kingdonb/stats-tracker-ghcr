@@ -32,13 +32,13 @@ development: &development
   username: thecount
 
   # The password associated with the postgres role (username).
-  password: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"] %>
+  password: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_PASSWORD"] || ENV["POSTGRES_PASSWORD"] %>
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
   # domain sockets, so uncomment these lines.
   # host: dl-count-db.turkey.local
-  host: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"] %>
+  host: <%= ENV["GRAFANA_DOWNLOADS_APP_DATABASE_HOST"] || 'localhost' %>
 
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.

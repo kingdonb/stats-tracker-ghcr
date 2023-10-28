@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @landing %>
+
+<div>
+  <%= link_to "Edit this landing", edit_landing_path(@landing) %> |
+  <%= link_to "Back to landings", landings_path %>
+
+  <%= button_to "Destroy this landing", @landing, method: :delete %>
+</div>
