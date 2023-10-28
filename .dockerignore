@@ -1,6 +1,7 @@
 Dockerfile
 Makefile
 build/
+.env
 .env.local
 .git/
 test.wasm

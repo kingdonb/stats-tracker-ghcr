@@ -29,3 +29,6 @@ $theme-colors: map-merge($theme-colors, $custom-colors);
 
 // simple_form helpers
 @import "simple_form-bootstrap/simple_form-bootstrap";
+
+// cookies_eu style
+@import "cookies_eu";

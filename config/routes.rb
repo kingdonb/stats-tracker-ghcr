@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'cookies/accept'
   resources :landings
   resources :packages
   resources :repositories
