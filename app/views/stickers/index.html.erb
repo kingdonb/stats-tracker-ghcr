@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Stickers</h1>
+
+<div id="stickers">
+  <% @stickers.each do |sticker| %>
+    <%= render sticker %>
+    <p>
+      <%= link_to "Show this sticker", sticker %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New sticker", new_sticker_path %>
