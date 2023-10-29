@@ -47,7 +47,7 @@ jobs:
         id: prep
         run: |
           TAGGED=${GITHUB_REF/refs\/tags\//}
-          CFGTAG=$(rake app:version|awk '{print $3}')
+          CFGTAG=$(bundle exec rake app:version|awk '{print $3}')
           if [[ "$TAGGED" != "$CFGTAG" ]]; then
             echo "The config/version.yml does not match, double check the tag and try again."
             exit 1
