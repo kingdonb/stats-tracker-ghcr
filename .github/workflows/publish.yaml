@@ -30,8 +30,8 @@ env:
   BASE_TAG: base
   GEMS_TAG: gems
   GEM_CACHE_TAG: gem-cache
-  WABT_VERSION: 1.0.33
-  BINARYEN_VERSION: "116"
+  WABT_VERSION: 1.0.34
+  BINARYEN_VERSION: "117"
 
 jobs:
   release:
@@ -68,6 +68,7 @@ jobs:
         if: "${{ github.event.inputs.dockerTarget == 'base'}}"
         with:
           cache: false
+          toolchain: 1.72.1
           target: wasm32-wasi
 
       - name: Set up Rust cache
