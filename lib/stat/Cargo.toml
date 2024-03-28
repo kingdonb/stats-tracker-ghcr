@@ -9,4 +9,3 @@ edition = "2021"
 
 [dependencies]
 lib-stat = { path = "lib-stat" }
-bumpalo = "3.14.0"
