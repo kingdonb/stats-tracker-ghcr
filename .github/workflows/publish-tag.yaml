@@ -75,7 +75,7 @@ jobs:
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Install wabt, binaryen
-        uses: kingdonb/setup-wabt@v1.0.5
+        uses: kingdonb/setup-wabt@v1.0.6
         with:
           version: ${{ env.WABT_VERSION }}
           version2: ${{ env.BINARYEN_VERSION }}

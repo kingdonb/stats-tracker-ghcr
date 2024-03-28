@@ -102,7 +102,7 @@ jobs:
           key: ${{ runner.os }}-wabt_${{ env.WABT_VERSION }}-binaryen_${{ env.BINARYEN_VERSION }}
 
       - name: Install wabt, binaryen
-        uses: kingdonb/setup-wabt@v1.0.5
+        uses: kingdonb/setup-wabt@v1.0.6
         if: "${{ github.event.inputs.dockerTarget == 'base' && steps.cache.outputs.cache-hit != 'true' }}"
         with:
           version: ${{ env.WABT_VERSION }}
