@@ -37,6 +37,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+          toolchain: 1.72.1
+          target: wasm32-wasi
+
+      - name: Set up Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            lib/stat
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@bc1dd263b68cb5626dbb55d5c89777d79372c484
         with:
@@ -54,19 +67,6 @@ jobs:
           fi
           echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
           echo IMAGE_TAG=${CFGTAG} >> $GITHUB_OUTPUT
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache: false
-          toolchain: 1.72.1
-          target: wasm32-wasi
-
-      - name: Set up Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            lib/stat
 
       - name: Add local bin to path (wasm-strip, wasm-opt)
         shell: bash
