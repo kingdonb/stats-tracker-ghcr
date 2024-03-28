@@ -5,10 +5,10 @@
 
 major:        0
 minor:        2
-patch:        2
+patch:        3
 # meta:		  rc.1
 # milestone:  4
-build:      308
+build:      330
 
 committer:  Kingdon Barrett
 build_date: 2024-03-28
