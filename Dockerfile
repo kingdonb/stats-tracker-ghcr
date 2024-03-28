@@ -8,7 +8,7 @@ RUN echo -n "---\nBUNDLE_PATH: \"/usr/local/bundle\"" > /usr/local/bundle/config
 FROM $BASE_IMAGE AS base
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN mkdir -p /usr/local/bundle
-RUN gem install bundler:2.4.14 && gem install foreman
+RUN gem install bundler:2.5.7 && gem install foreman
 
 WORKDIR /usr/src/app
 RUN mkdir -p /usr/src/app/lib
