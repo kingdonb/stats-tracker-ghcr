@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
           fetch-depth: 0
 
@@ -26,13 +26,13 @@ jobs:
           echo LATEST_TAG=$LATEST_TAG >> $GITHUB_OUTPUT
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@161cd54b698f1fb3ea539faab2e036d409550e3c # v1
         with:
           ruby-version: '3.1.4'
           bundler-cache: true
 
       - name: Setup Kubernetes
-        uses: helm/kind-action@v1.9.0
+        uses: helm/kind-action@99576bfa6ddf9a8e612d83b513da5a75875caced # v1.9.0
         with:
           cluster_name: stats
 
