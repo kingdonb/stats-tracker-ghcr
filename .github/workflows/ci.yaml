@@ -21,16 +21,16 @@ jobs:
           POSTGRES_PASSWORD: postgres
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
       - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1
         with:
           cache: false
           toolchain: 1.72.1
           target: wasm32-wasi
 
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@161cd54b698f1fb3ea539faab2e036d409550e3c # v1
         with:
           ruby-version: 3.1.4
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically

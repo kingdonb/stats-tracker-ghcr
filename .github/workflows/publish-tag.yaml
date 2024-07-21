@@ -21,37 +21,37 @@ jobs:
       packages: write # needed for ghcr access
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@5927c834f5b4fdf503fca6f4c7eccda82949e1ee # v3
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
       - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1
         with:
           cache: false
           toolchain: 1.72.1
           target: wasm32-wasi
 
       - name: Set up Rust cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@11d1987849787746b1ba13dcbb74080ec08e5947 # v2
         with:
           workspaces: |
             lib/stat
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@161cd54b698f1fb3ea539faab2e036d409550e3c # v1
         with:
           ruby-version: '3.1.4'
           bundler-cache: true
@@ -75,7 +75,7 @@ jobs:
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Install wabt, binaryen
-        uses: kingdonb/setup-wabt@v1.0.6
+        uses: kingdonb/setup-wabt@c71289194d9b416641f3775088420a6cbe1d929c # v1.0.6
         with:
           version: ${{ env.WABT_VERSION }}
           version2: ${{ env.BINARYEN_VERSION }}
@@ -122,7 +122,7 @@ jobs:
           df -h
 
       - name: Build and push tag
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -138,7 +138,7 @@ jobs:
             CACHE_IMAGE=${{ env.IMAGE_NAME }}:${{ env.GEMS_TAG }}
 
       - name: Upload Wasm binary to release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           release_name: v${{ steps.prep.outputs.IMAGE_TAG }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -149,9 +149,9 @@ jobs:
           body: ""
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@8463b1412ec8a89f8e57ee208daf7ab4cc4b0f7b # v3
       - name: Install flux
-        uses: fluxcd/flux2/action@main
+        uses: fluxcd/flux2/action@31d160b309ea35abceeb76777faa2d4d6ac4a843 # main
 
       - name: Publish Flux OCI artifact to GHCR
         run: |
